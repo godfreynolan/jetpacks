@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">JetpackETA</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="label_companies_fragment">Companies</string>
+    <string name="label_routes_fragment">Routes</string>
+    <string name="label_stops_fragment">Stops</string>
 </resources>

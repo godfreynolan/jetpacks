@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/CompanyFragment">
+
+    <fragment
+        android:id="@+id/CompanyFragment"
+        android:name="com.riis.jetpacketa.features.company.CompaniesFragment"
+        android:label="@string/label_companies_fragment"
+        tools:layout="@layout/fragment_company">
+
+        <action
+            android:id="@+id/action_CompaniesFragment_to_RoutesFragment"
+            app:destination="@id/RoutesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/RoutesFragment"
+        android:name="com.riis.jetpacketa.features.route.RoutesFragment"
+        android:label="@string/label_routes_fragment"
+        tools:layout="@layout/fragment_route">
+
+        <action
+            android:id="@+id/action_RoutesFragment_to_StopsFragment"
+            app:destination="@id/StopsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/StopsFragment"
+        android:name="com.riis.jetpacketa.features.stop.StopsFragment"
+        android:label="@string/label_stops_fragment"
+        tools:layout="@layout/fragment_stops">
+    </fragment>
+</navigation>

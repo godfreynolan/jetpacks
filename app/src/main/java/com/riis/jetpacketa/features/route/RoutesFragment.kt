@@ -10,6 +10,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.R
@@ -68,23 +69,16 @@ class RoutesFragment: Fragment() {
         adapter = RouteRecyclerAdapter(routes).apply {
             onItemClicked = {
                 // Item Clicked, start new fragment
-                requireActivity()
-                    .supportFragmentManager
-                    .beginTransaction()
-                    .replace(
-                        R.id.frameLayout,
-                        StopsFragment::class.java,
+                findNavController()
+                    .navigate(
+                        R.id.action_RoutesFragment_to_StopsFragment,
                         bundleOf(
                             "companyId" to companyId,
                             "companyName" to companyName,
                             "routeName" to it.routeLongName,
                             "routeId" to it.routeId
                         ),
-                        StopsFragment.TAG
                     )
-                    .addToBackStack(StopsFragment.TAG)
-                    .commit()
-
             }
         }
 
