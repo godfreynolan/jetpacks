@@ -13,8 +13,8 @@ import kotlinx.coroutines.withContext
 class RoutesViewModel(application: Application) : AndroidViewModel(application) {
 
     // Initialize Connection to DB
-    private val dbName = "jetpacketa.db"
-    private val dbInputStream = application.applicationContext.assets.open("jetpacketa.db")
+    private val dbName = "gtfs_room.db"
+    private val dbInputStream = application.applicationContext.assets.open("gtfs_room.db")
     private val helper = SqliteHelper.getInstance(dbInputStream, dbName)
 
     // Create mutable live data for the `Company` list
