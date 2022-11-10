@@ -18,7 +18,9 @@ import com.riis.jetpacketa.databinding.FragmentRouteBinding
 import com.riis.jetpacketa.features.route.adapters.RouteRecyclerAdapter
 import com.riis.jetpacketa.features.route.model.Route
 import com.riis.jetpacketa.features.stop.StopsFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RoutesFragment: Fragment() {
 
     companion object {

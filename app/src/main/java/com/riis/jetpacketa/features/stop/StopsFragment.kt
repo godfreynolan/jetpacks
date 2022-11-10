@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.databinding.FragmentStopsBinding
 import com.riis.jetpacketa.features.stop.adapters.StopRecyclerAdapter
 import com.riis.jetpacketa.features.stop.model.StopUi
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class StopsFragment: Fragment() {
     companion object {
         const val TAG = "StopsFragment"
@@ -55,7 +57,7 @@ class StopsFragment: Fragment() {
         routeId = arguments?.getInt("routeId") ?: -1
         companyName = arguments?.getString("companyName", "") ?: ""
         routeName = arguments?.getString("routeName", "") ?: ""
-        
+
         viewModel.getStops(companyId, routeId)
 
         // Update Top Toolbar and display `Back` button

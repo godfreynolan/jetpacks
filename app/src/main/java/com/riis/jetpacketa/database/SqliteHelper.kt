@@ -16,20 +16,16 @@ import com.riis.jetpacketa.features.stop.model.Trip
 import java.io.*
 
 
-class SqliteHelper(private val dbInputStream: InputStream, private val dbName: String) {
+class SqliteHelper(private val context: Context): SqliteHelperInterface {
 
     companion object {
         private const val TAG = "SqliteHelper"
-        private var mInstance: SqliteHelper? = null
-        fun getInstance(dbInputStream: InputStream, dbName: String): SqliteHelper {
-            if (mInstance == null) mInstance = SqliteHelper(dbInputStream, dbName)
-            return mInstance as SqliteHelper
-        }
+        const val DB_NAME = "jetpacketa.db"
     }
 
     @SuppressLint("SdCardPath")
     private val dbPath: String = "/data/data/${BuildConfig.APPLICATION_ID}/databases/"
-    private val outFileName: String = dbPath + dbName
+    private val outFileName: String = dbPath + DB_NAME
     private lateinit var db: SQLiteDatabase
 
     init {
@@ -39,6 +35,7 @@ class SqliteHelper(private val dbInputStream: InputStream, private val dbName: S
     //https://stackoverflow.com/questions/22627215/how-to-put-database-and-read-database-from-assets-folder-android-which-are-creat
     private fun copyDataBaseFromAssets() {
         try {
+            val dbInputStream = context.assets.open(DB_NAME)
             val folder = File(dbPath)
             if (!folder.exists()) folder.mkdirs()
 
@@ -81,7 +78,7 @@ class SqliteHelper(private val dbInputStream: InputStream, private val dbName: S
         return flag
     }
 
-    fun getCompanies(): List<Company> {
+    override fun getCompanies(): List<Company> {
         val newCompanies = mutableListOf<Company>()
         val query = db.rawQuery("SELECT * FROM agency", null)
         if(query.count > 0) {
@@ -130,7 +127,7 @@ class SqliteHelper(private val dbInputStream: InputStream, private val dbName: S
         return newCompanies
     }
 
-    fun getRoutes(companyId: Int): List<Route> {
+    override fun getRoutes(companyId: Int): List<Route> {
         val newRoutes = mutableListOf<Route>()
         val query = db.rawQuery("SELECT * FROM routes WHERE agency_id = ?", arrayOf(companyId.toString()))
         if(query.count > 0) {
@@ -302,7 +299,7 @@ class SqliteHelper(private val dbInputStream: InputStream, private val dbName: S
         return stopTimes
     }
 
-    fun getStopsForRoute(routeId: Int, companyId: Int): List<StopUi> {
+     override fun getStopsForRoute(routeId: Int, companyId: Int): List<StopUi> {
         val stops = mutableListOf<StopUi>()
 //        val query = db.rawQuery(
 //            "SELECT DISTINCT stops.stop_id, stops.stop_name\n" +

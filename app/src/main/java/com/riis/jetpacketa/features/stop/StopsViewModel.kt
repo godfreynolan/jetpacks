@@ -1,30 +1,30 @@
 package com.riis.jetpacketa.features.stop
 
-import android.app.Application
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.riis.jetpacketa.database.SqliteHelperInterface
 import com.google.gson.reflect.TypeToken
-import com.riis.jetpacketa.database.SqliteHelper
 import com.riis.jetpacketa.features.stop.model.StopUi
 import com.riis.jetpacketa.security.EncryptedSharedPrefsHelper
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class StopsViewModel(application: Application) : AndroidViewModel(application) {
+// Describes the ViewModel as a `HiltViewModel` and injects
+// the `SqliteHelper` and `EncryptedSharedPrefsHelper`
+@HiltViewModel
+class StopsViewModel @Inject constructor(
+    private val helper: SqliteHelperInterface,
+    private val encryptedSharedPrefs: EncryptedSharedPrefsHelper
+): ViewModel() {
 
     companion object {
         private const val TAG = "StopViewModel"
         private const val FAVORITE_STOPS = "favorite_routes"
     }
-
-    // Initialize Connection to DB
-    private val dbName = "jetpacketa.db"
-    private val dbInputStream = application.applicationContext.assets.open("jetpacketa.db")
-    private val helper = SqliteHelper.getInstance(dbInputStream, dbName)
-    private val encryptedSharedPrefs = EncryptedSharedPrefsHelper(application.applicationContext)
 
     // Create mutable live data for the `Company` list
     val stops = MutableLiveData<List<StopUi>>(emptyList())
