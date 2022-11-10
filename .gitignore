@@ -15,3 +15,4 @@
 local.properties
 .idea
 app/src/main/assets/jetpacketa.db
+app/src/main/assets/gtfs_room.db
