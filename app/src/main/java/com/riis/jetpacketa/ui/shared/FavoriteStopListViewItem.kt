@@ -35,7 +35,6 @@ fun FavoriteStopListViewItem(stop: StopUi, onClick: (() -> Unit)? = null) {
                     bottom = 5.dp
                 )
                 .fillMaxWidth()
-                .clickable { onClick?.invoke() }
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -55,7 +54,7 @@ fun FavoriteStopListViewItem(stop: StopUi, onClick: (() -> Unit)? = null) {
                         )
                 )
                 IconButton(
-                    onClick = { /*TODO*/ }
+                    onClick = { onClick?.invoke() }
                 ) {
                     Icon(
                         if(stop.favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
