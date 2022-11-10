@@ -72,7 +72,6 @@ class RoutesFragment: Fragment() {
             }
         }
         binding.routeRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.routeRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         binding.routeRecyclerView.adapter = adapter
 
         return binding.root

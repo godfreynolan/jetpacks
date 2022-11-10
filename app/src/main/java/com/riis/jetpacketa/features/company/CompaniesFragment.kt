@@ -55,7 +55,6 @@ class CompaniesFragment: Fragment() {
             }
         }
         binding.companyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.companyRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         binding.companyRecyclerView.adapter = adapter
 
         return binding.root

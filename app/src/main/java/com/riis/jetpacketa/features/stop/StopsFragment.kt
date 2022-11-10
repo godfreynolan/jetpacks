@@ -55,7 +55,6 @@ class StopsFragment: Fragment() {
             }
         }
         binding.stopsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.stopsRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         binding.stopsRecyclerView.adapter = adapter
 
         return binding.root
