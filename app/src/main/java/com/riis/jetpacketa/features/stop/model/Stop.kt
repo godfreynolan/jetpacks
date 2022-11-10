@@ -17,5 +17,6 @@ data class Stop(
 
 data class StopUi(
     val stopId: Int,
-    val stopName: String
+    val stopName: String,
+    var favorite: Boolean = false
 )

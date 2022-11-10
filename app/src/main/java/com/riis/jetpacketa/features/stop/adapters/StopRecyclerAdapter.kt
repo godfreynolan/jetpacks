@@ -1,12 +1,14 @@
 package com.riis.jetpacketa.features.stop.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.riis.jetpacketa.R
 import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
 import com.riis.jetpacketa.features.stop.model.StopUi
 
-typealias OnItemClicked = (StopUi) -> Unit
+typealias OnItemClicked = (StopUi, Boolean, Int) -> Unit
 
 class StopRecyclerAdapter(private val stops: List<StopUi>): RecyclerView.Adapter<StopRecyclerAdapter.ViewHolder>() {
 
@@ -18,9 +20,13 @@ class StopRecyclerAdapter(private val stops: List<StopUi>): RecyclerView.Adapter
 
     // Binds the `Company` data to the elements in the RecyclerView Items
     inner class ViewHolder(private val binding: RecyclerViewItemBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(stop: StopUi) {
+        fun bind(stop: StopUi, position: Int) {
             binding.name.text = stop.stopName
-            binding.name.setOnClickListener { onItemClicked?.invoke(stop) }
+            binding.favoriteImageView.visibility = View.VISIBLE
+            binding.favoriteImageView.setImageResource(R.drawable.ic_baseline_star_outline_24)
+            if(stop.favorite) binding.favoriteImageView.setImageResource(R.drawable.ic_baseline_star_24)
+
+            binding.favoriteImageView.setOnClickListener { onItemClicked?.invoke(stop, !stop.favorite, position) }
         }
     }
 
@@ -30,7 +36,7 @@ class StopRecyclerAdapter(private val stops: List<StopUi>): RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(stops[position])
+        holder.bind(stops[position], position)
     }
 
     override fun getItemCount(): Int {

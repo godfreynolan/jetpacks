@@ -62,7 +62,12 @@ class StopsFragment: Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = routeName
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        adapter = StopRecyclerAdapter(stops)
+        adapter = StopRecyclerAdapter(stops).apply {
+            onItemClicked = { stop, isFavorite, position ->
+                if(isFavorite) viewModel.favorite(position)
+                else viewModel.removeFavorite(stop, position)
+            }
+        }
 
         // Setup recyclerView layout manager, decorations, and adapter
         binding.stopsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
