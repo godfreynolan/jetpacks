@@ -79,7 +79,7 @@ class RoutesFragment: Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private val routeQueryRunnable = Runnable {
-        val dbName = "jetpacketa.db"
+        val dbName = "gtfs_room.db"
         val dbInputStream = requireActivity().applicationContext.assets.open(dbName)
         val helper = SqliteHelper.getInstance(dbInputStream, dbName)
         if(companyId == -1) return@Runnable
