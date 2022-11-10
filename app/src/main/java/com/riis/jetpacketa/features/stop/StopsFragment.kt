@@ -7,14 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.riis.jetpacketa.database.SqliteHelper
 import com.riis.jetpacketa.databinding.FragmentStopsBinding
 import com.riis.jetpacketa.features.stop.adapters.StopRecyclerAdapter
 import com.riis.jetpacketa.features.stop.model.StopUi
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 class StopsFragment: Fragment() {
     companion object {
@@ -24,9 +23,19 @@ class StopsFragment: Fragment() {
     private var _binding: FragmentStopsBinding? = null
     private val binding get() = _binding!!
 
+    // Initialize the ViewModel
+    private val viewModel by viewModels<StopsViewModel>()
+
+    // Create an Observer that will automatically update
+    // the recycler view when the data changes
+    @SuppressLint("NotifyDataSetChanged")
+    private val stopListObserver = Observer<List<StopUi>> {
+        stops.clear()
+        stops.addAll(it)
+        adapter.notifyDataSetChanged()
+    }
+
     private lateinit var adapter: StopRecyclerAdapter
-    private var executor = Executors.newSingleThreadExecutor()
-    private lateinit var futureRunnable: Future<*>
     private val stops: MutableList<StopUi> = mutableListOf()
 
     private var companyId: Int = -1
@@ -38,48 +47,40 @@ class StopsFragment: Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentStopsBinding.inflate(inflater, container, false)
+
+        // Get arguments from bundle
         companyId = arguments?.getInt("companyId") ?: -1
         routeId = arguments?.getInt("routeId") ?: -1
         companyName = arguments?.getString("companyName", "") ?: ""
         routeName = arguments?.getString("routeName", "") ?: ""
+        
+        viewModel.getStops(companyId, routeId)
 
+        // Update Top Toolbar and display `Back` button
         (activity as AppCompatActivity).supportActionBar?.title = routeName
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        adapter = StopRecyclerAdapter(stops).apply {
-            onItemClicked = {
-                // Item Clicked, start new fragment
+        adapter = StopRecyclerAdapter(stops)
 
-            }
-        }
+        // Setup recyclerView layout manager, decorations, and adapter
         binding.stopsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.stopsRecyclerView.adapter = adapter
 
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private val stopQueryRunnable = Runnable {
-        val helper = SqliteHelper.getInstance(requireContext().applicationContext.assets.open("jetpacketa.db"), "jetpacketa.db")
-        val newStops = helper.getStopsForRoute(routeId, companyId)
-
-        requireActivity().runOnUiThread {
-            stops.clear()
-            stops.addAll(newStops)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        futureRunnable = executor.submit(stopQueryRunnable)
+        // When fragment resumes, start the observer
+        viewModel.stops.observe(this, stopListObserver)
     }
 
     override fun onStop() {
         super.onStop()
-        futureRunnable.cancel(true)
+        // When fragment stops, remove the observer
+        viewModel.stops.removeObserver(stopListObserver)
     }
 
     override fun onDestroyView() {

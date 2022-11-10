@@ -8,16 +8,15 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.R
-import com.riis.jetpacketa.database.SqliteHelper
 import com.riis.jetpacketa.databinding.FragmentRouteBinding
 import com.riis.jetpacketa.features.route.adapters.RouteRecyclerAdapter
 import com.riis.jetpacketa.features.route.model.Route
 import com.riis.jetpacketa.features.stop.StopsFragment
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 class RoutesFragment: Fragment() {
 
@@ -28,9 +27,19 @@ class RoutesFragment: Fragment() {
     private var _binding: FragmentRouteBinding? = null
     private val binding get() = _binding!!
 
+    // Initialize the ViewModel
+    private val viewModel by viewModels<RoutesViewModel>()
+
+    // Create an Observer that will automatically update
+    // the recycler view when the data changes
+    @SuppressLint("NotifyDataSetChanged")
+    private val routeListObserver = Observer<List<Route>> {
+        routes.clear()
+        routes.addAll(it)
+        adapter.notifyDataSetChanged()
+    }
+
     private lateinit var adapter: RouteRecyclerAdapter
-    private var executor = Executors.newSingleThreadExecutor()
-    private lateinit var futureRunnable: Future<*>
     private val routes: MutableList<Route> = mutableListOf()
     private var companyId: Int = -1
     private var companyName: String = ""
@@ -40,11 +49,18 @@ class RoutesFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRouteBinding.inflate(inflater, container, false)
+
+        // Get the arguments from the Bundle
         companyId = arguments?.getInt("companyId") ?: -1
         companyName = arguments?.getString("companyName", "") ?: ""
 
+        // Replace the long name of DDOT with the acronym
         if(companyName == "Detroit Department of Transportation") companyName = "DDOT"
 
+        // Fetch the routes
+        viewModel.getRoutes(companyId)
+
+        // Update Top Toolbar with new text and enable the `Back` button
         (activity as AppCompatActivity).supportActionBar?.title = "$companyName Routes"
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -71,36 +87,24 @@ class RoutesFragment: Fragment() {
 
             }
         }
+
+        // Setup recyclerView's layout manager, decorations, and adapter
         binding.routeRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.routeRecyclerView.adapter = adapter
 
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private val routeQueryRunnable = Runnable {
-        val dbName = "jetpacketa.db"
-        val dbInputStream = requireActivity().applicationContext.assets.open(dbName)
-        val helper = SqliteHelper.getInstance(dbInputStream, dbName)
-        if(companyId == -1) return@Runnable
-
-        val newRoutes = helper.getRoutes(companyId)
-
-        requireActivity().runOnUiThread {
-            routes.clear()
-            routes.addAll(newRoutes)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        futureRunnable = executor.submit(routeQueryRunnable)
+        // When fragment resumes, start observer
+        viewModel.routes.observe(this, routeListObserver)
     }
 
     override fun onStop() {
         super.onStop()
-        futureRunnable.cancel(true)
+        // When fragment stops, remove the live data observer
+        viewModel.routes.removeObserver(routeListObserver)
     }
 
     override fun onDestroyView() {
