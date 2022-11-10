@@ -1,9 +1,7 @@
 package com.riis.jetpacketa.features.company
 
 import android.annotation.SuppressLint
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +10,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.riis.jetpacketa.R
 import com.riis.jetpacketa.database.SqliteHelper
+import com.riis.jetpacketa.databinding.FragmentCompanyBinding
 import com.riis.jetpacketa.features.company.adapters.CompanyRecyclerAdapter
 import com.riis.jetpacketa.features.company.model.Company
 import com.riis.jetpacketa.features.route.RoutesFragment
@@ -27,8 +25,10 @@ class CompaniesFragment: Fragment() {
         const val TAG = "CompaniesFragment"
     }
 
+    private var _binding: FragmentCompanyBinding? = null
+    private val binding get() = _binding!!
+
     // Setup RecyclerView
-    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CompanyRecyclerAdapter
     private var companies: MutableList<Company> = mutableListOf()
     private var executor = Executors.newSingleThreadExecutor()
@@ -38,14 +38,10 @@ class CompaniesFragment: Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_company, container, false)
-        Log.i(TAG, "onCreateView: Inflating")
+        _binding = FragmentCompanyBinding.inflate(inflater, container, false)
 
         (activity as AppCompatActivity).supportActionBar?.title = "Companies"
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
-        // Attach Adapter and Temporary Data to RecyclerView
-        recyclerView = view.findViewById(R.id.companyRecyclerView)
 
         adapter = CompanyRecyclerAdapter(companies).apply {
             onItemClicked = {
@@ -58,16 +54,19 @@ class CompaniesFragment: Fragment() {
                     .commit()
             }
         }
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.companyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.companyRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.companyRecyclerView.adapter = adapter
 
-        return view
+        return binding.root
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private val companiesQueryRunnable = Runnable {
-        val helper = SqliteHelper.getInstance(requireContext().applicationContext.assets.open("jetpacketa.db"), "jetpacketa.db")
+        val dbName = "jetpacketa.db"
+        val dbInputStream = requireContext().applicationContext.assets.open("jetpacketa.db")
+
+        val helper = SqliteHelper.getInstance(dbInputStream, dbName)
         val newCompanies = helper.getCompanies()
 
         requireActivity().runOnUiThread {
@@ -85,5 +84,10 @@ class CompaniesFragment: Fragment() {
     override fun onStop() {
         super.onStop()
         futureRunnable.cancel(true)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

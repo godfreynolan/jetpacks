@@ -1,11 +1,9 @@
 package com.riis.jetpacketa.features.route.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.riis.jetpacketa.R
+import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
 import com.riis.jetpacketa.features.route.model.Route
 
 typealias OnItemClicked = (Route) -> Unit
@@ -18,18 +16,16 @@ class RouteRecyclerAdapter(private val routes: List<Route>): RecyclerView.Adapte
 
     var onItemClicked: OnItemClicked? = null
 
-    // Binds the `Company` data to the elements in the RecyclerView Items
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(private val binding: RecyclerViewItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(route: Route) {
-            val nameView = itemView.findViewById<TextView>(R.id.name)
-            nameView.text = route.routeLongName
-            nameView.setOnClickListener { onItemClicked?.invoke(route) }
+            binding.name.text = route.routeLongName
+            binding.name.setOnClickListener { onItemClicked?.invoke(route) }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item, parent, false)
-        return ViewHolder(view)
+        val binding = RecyclerViewItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

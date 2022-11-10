@@ -1,11 +1,9 @@
 package com.riis.jetpacketa.features.company.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.riis.jetpacketa.R
+import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
 import com.riis.jetpacketa.features.company.model.Company
 
 typealias OnItemClicked = (Company) -> Unit
@@ -18,18 +16,16 @@ class CompanyRecyclerAdapter(private val companies: List<Company>): RecyclerView
 
     var onItemClicked: OnItemClicked? = null
 
-    // Binds the `Company` data to the elements in the RecyclerView Items
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(private val binding: RecyclerViewItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(company: Company) {
-            val nameView = itemView.findViewById<TextView>(R.id.name)
-            nameView.text = company.name
-            nameView.setOnClickListener { onItemClicked?.invoke(company) }
+            binding.name.text = company.name
+            binding.name.setOnClickListener { onItemClicked?.invoke(company) }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item, parent, false)
-        return ViewHolder(view)
+        val binding = RecyclerViewItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

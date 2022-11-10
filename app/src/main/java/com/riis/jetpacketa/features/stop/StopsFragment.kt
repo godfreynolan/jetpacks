@@ -1,20 +1,17 @@
 package com.riis.jetpacketa.features.stop
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.riis.jetpacketa.R
 import com.riis.jetpacketa.database.SqliteHelper
+import com.riis.jetpacketa.databinding.FragmentStopsBinding
 import com.riis.jetpacketa.features.stop.adapters.StopRecyclerAdapter
-import com.riis.jetpacketa.features.stop.model.Stop
 import com.riis.jetpacketa.features.stop.model.StopUi
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -24,8 +21,10 @@ class StopsFragment: Fragment() {
         const val TAG = "StopsFragment"
     }
 
+    private var _binding: FragmentStopsBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: StopRecyclerAdapter
-    private lateinit var recyclerView: RecyclerView
     private var executor = Executors.newSingleThreadExecutor()
     private lateinit var futureRunnable: Future<*>
     private val stops: MutableList<StopUi> = mutableListOf()
@@ -40,7 +39,7 @@ class StopsFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_stops, container, false)
+        _binding = FragmentStopsBinding.inflate(inflater, container, false)
         companyId = arguments?.getInt("companyId") ?: -1
         routeId = arguments?.getInt("routeId") ?: -1
         companyName = arguments?.getString("companyName", "") ?: ""
@@ -49,22 +48,20 @@ class StopsFragment: Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = routeName
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Attach Adapter and Temporary Data to RecyclerView
-        recyclerView = view.findViewById(R.id.stopsRecyclerView)
-
         adapter = StopRecyclerAdapter(stops).apply {
             onItemClicked = {
                 // Item Clicked, start new fragment
 
             }
         }
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.stopsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.stopsRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.stopsRecyclerView.adapter = adapter
 
-        return view
+        return binding.root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private val stopQueryRunnable = Runnable {
         val helper = SqliteHelper.getInstance(requireContext().applicationContext.assets.open("jetpacketa.db"), "jetpacketa.db")
         val newStops = helper.getStopsForRoute(routeId, companyId)
@@ -84,6 +81,11 @@ class StopsFragment: Fragment() {
     override fun onStop() {
         super.onStop()
         futureRunnable.cancel(true)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

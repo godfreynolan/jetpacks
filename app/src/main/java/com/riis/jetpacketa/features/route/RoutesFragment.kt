@@ -10,9 +10,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.riis.jetpacketa.R
 import com.riis.jetpacketa.database.SqliteHelper
+import com.riis.jetpacketa.databinding.FragmentRouteBinding
 import com.riis.jetpacketa.features.route.adapters.RouteRecyclerAdapter
 import com.riis.jetpacketa.features.route.model.Route
 import com.riis.jetpacketa.features.stop.StopsFragment
@@ -25,8 +25,10 @@ class RoutesFragment: Fragment() {
         const val TAG = "RouteFragment"
     }
 
+    private var _binding: FragmentRouteBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: RouteRecyclerAdapter
-    private lateinit var recyclerView: RecyclerView
     private var executor = Executors.newSingleThreadExecutor()
     private lateinit var futureRunnable: Future<*>
     private val routes: MutableList<Route> = mutableListOf()
@@ -37,7 +39,7 @@ class RoutesFragment: Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_route, container, false)
+        _binding = FragmentRouteBinding.inflate(inflater, container, false)
         companyId = arguments?.getInt("companyId") ?: -1
         companyName = arguments?.getString("companyName", "") ?: ""
 
@@ -46,8 +48,6 @@ class RoutesFragment: Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = "$companyName Routes"
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Attach Adapter and Temporary Data to RecyclerView
-        recyclerView = view.findViewById(R.id.routeRecyclerView)
 
         adapter = RouteRecyclerAdapter(routes).apply {
             onItemClicked = {
@@ -71,11 +71,11 @@ class RoutesFragment: Fragment() {
 
             }
         }
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        binding.routeRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.routeRecyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.routeRecyclerView.adapter = adapter
 
-        return view
+        return binding.root
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -102,5 +102,10 @@ class RoutesFragment: Fragment() {
     override fun onStop() {
         super.onStop()
         futureRunnable.cancel(true)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
