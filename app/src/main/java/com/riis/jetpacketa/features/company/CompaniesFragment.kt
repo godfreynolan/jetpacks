@@ -67,7 +67,9 @@ class CompaniesFragment: Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private val companiesQueryRunnable = Runnable {
-        val helper = SqliteHelper.getInstance(requireContext().applicationContext.assets.open("jetpacketa.db"), "jetpacketa.db")
+        val dbName = "gtfs_room.db"
+        val dbInputStream = requireActivity().applicationContext.assets.open(dbName)
+        val helper = SqliteHelper.getInstance(dbInputStream, dbName)
         val newCompanies = helper.getCompanies()
 
         requireActivity().runOnUiThread {
