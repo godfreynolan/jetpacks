@@ -21,7 +21,6 @@ import com.riis.jetpacketa.features.route.room.Route
 import com.riis.jetpacketa.ui.Screen
 import com.riis.jetpacketa.ui.shared.ListViewItem
 
-
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun DefaultRoutesPreview() {

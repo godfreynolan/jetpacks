@@ -1,9 +1,5 @@
 package com.riis.jetpacketa.features.stop
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,8 +9,6 @@ import com.google.gson.reflect.TypeToken
 import com.riis.jetpacketa.security.EncryptedSharedPrefsHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,34 +45,6 @@ class StopsViewModel @Inject constructor(
             stops.postValue(formatted)
         }
 
-    }
-
-    fun favorite(position: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.i(TAG, "getStops: Updating State!")
-            val tempStops = stops.value?.toMutableList() ?: return@launch
-            val copy = tempStops[position].copy()
-            copy.favorite = true
-            val favorites = getFavorites()
-            favorites.add(copy)
-            encryptedSharedPrefs.savePreference(FAVORITE_STOPS, favorites)
-            tempStops[position] = copy
-            stops.postValue(tempStops)
-        }
-    }
-
-    fun removeFavorite(stop: StopUi, position: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.i(TAG, "getStops: Updating State!")
-            val tempStops = stops.value?.toMutableList() ?: return@launch
-            val copy = tempStops[position].copy()
-            copy.favorite = false
-            val favorites = getFavorites()
-            favorites.removeIf { it.stopId == stop.stopId && it.stopName == stop.stopName }
-            encryptedSharedPrefs.savePreference(FAVORITE_STOPS, favorites)
-            tempStops[position] = copy
-            stops.postValue(tempStops)
-        }
     }
 
     fun invertFavorite(stop: StopUi, position: Int) {

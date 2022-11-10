@@ -14,7 +14,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.asFlow
 import androidx.navigation.NavController
 import com.riis.jetpacketa.features.stop.StopsViewModel
 import com.riis.jetpacketa.features.stop.room.StopUi
