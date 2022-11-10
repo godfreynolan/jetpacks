@@ -55,7 +55,6 @@ class AppModule {
     @Provides
     fun provideEncryptedSharedPrefsHelper(@ApplicationContext appContext: Context): EncryptedSharedPrefsHelper = EncryptedSharedPrefsHelperImpl(appContext)
 
-
     @Singleton
     @Provides
     fun provideCompanyRepository(companyDao: CompanyDAO): CompanyRepository = CompanyRepositoryImpl(companyDao)
