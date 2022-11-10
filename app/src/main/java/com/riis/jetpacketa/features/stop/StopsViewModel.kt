@@ -3,9 +3,9 @@ package com.riis.jetpacketa.features.stop
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.riis.jetpacketa.database.SqliteHelperInterface
+import com.riis.jetpacketa.features.stop.repository.StopRepository
+import com.riis.jetpacketa.features.stop.room.StopUi
 import com.google.gson.reflect.TypeToken
-import com.riis.jetpacketa.features.stop.model.StopUi
 import com.riis.jetpacketa.security.EncryptedSharedPrefsHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +14,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // Describes the ViewModel as a `HiltViewModel` and injects
-// the `SqliteHelper` and `EncryptedSharedPrefsHelper`
+// the `EncryptedSharedPrefsHelper` and `StopRepository`
 @HiltViewModel
 class StopsViewModel @Inject constructor(
-    private val helper: SqliteHelperInterface,
+    private val stopRepository: StopRepository,
     private val encryptedSharedPrefs: EncryptedSharedPrefsHelper
 ): ViewModel() {
 
@@ -35,7 +35,7 @@ class StopsViewModel @Inject constructor(
 
         // Launch new Coroutine for fetching the DB data
         viewModelScope.launch(Dispatchers.IO) {
-            val newStops = helper.getStopsForRoute(routeId, companyId)
+            val newStops = stopRepository.getStops(routeId, companyId)
             val favorites = getFavorites()
             val formatted = newStops.map {
                 if(favorites.find {fav -> it.stopId == fav.stopId && it.stopName == fav.stopName} != null) {
@@ -59,6 +59,7 @@ class StopsViewModel @Inject constructor(
             val favorites = getFavorites()
             favorites.add(tempStops[position])
             encryptedSharedPrefs.savePreference(FAVORITE_STOPS, favorites)
+
             withContext(Dispatchers.Main) {
                 stops.postValue(tempStops)
             }

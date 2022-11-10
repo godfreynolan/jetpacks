@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.R
 import com.riis.jetpacketa.databinding.FragmentRouteBinding
 import com.riis.jetpacketa.features.route.adapters.RouteRecyclerAdapter
-import com.riis.jetpacketa.features.route.model.Route
+import com.riis.jetpacketa.features.route.room.Route
 import com.riis.jetpacketa.features.stop.StopsFragment
 import dagger.hilt.android.AndroidEntryPoint
 

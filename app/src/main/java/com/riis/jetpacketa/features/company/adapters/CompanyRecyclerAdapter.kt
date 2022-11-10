@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
-import com.riis.jetpacketa.features.company.model.Company
+import com.riis.jetpacketa.features.company.room.Company
 
 typealias OnItemClicked = (Company) -> Unit
 

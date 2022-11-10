@@ -3,8 +3,8 @@ package com.riis.jetpacketa.features.company
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.riis.jetpacketa.database.SqliteHelperInterface
-import com.riis.jetpacketa.features.company.model.Company
+import com.riis.jetpacketa.features.company.repository.CompanyRepository
+import com.riis.jetpacketa.features.company.room.Company
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ import javax.inject.Inject
 // the `SqliteHelper`
 @HiltViewModel
 class CompaniesViewModel @Inject constructor(
-    private val helper: SqliteHelperInterface
+    private val companyRepository: CompanyRepository
 ): ViewModel() {
     // Create mutable live data for the `Company` list
     val companies = MutableLiveData<List<Company>>(emptyList())
@@ -23,7 +23,7 @@ class CompaniesViewModel @Inject constructor(
     fun getCompanies() {
         // Launch new Coroutine for fetching the DB data
         viewModelScope.launch(Dispatchers.IO) {
-            val newCompanies = helper.getCompanies()
+            val newCompanies = companyRepository.getCompanies()
 
             // On the `Main` Thread, post the new companies
             withContext(Dispatchers.Main) {

@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.R
 import com.riis.jetpacketa.databinding.FragmentCompanyBinding
 import com.riis.jetpacketa.features.company.adapters.CompanyRecyclerAdapter
-import com.riis.jetpacketa.features.company.model.Company
+import com.riis.jetpacketa.features.company.room.Company
 import com.riis.jetpacketa.features.route.RoutesFragment
 import dagger.hilt.android.AndroidEntryPoint
 

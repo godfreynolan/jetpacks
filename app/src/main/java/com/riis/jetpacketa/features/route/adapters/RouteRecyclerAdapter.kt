@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
-import com.riis.jetpacketa.features.route.model.Route
+import com.riis.jetpacketa.features.route.room.Route
 
 typealias OnItemClicked = (Route) -> Unit
 

@@ -9,11 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.riis.jetpacketa.databinding.FragmentStopsBinding
 import com.riis.jetpacketa.features.stop.adapters.StopRecyclerAdapter
-import com.riis.jetpacketa.features.stop.model.StopUi
+import com.riis.jetpacketa.features.stop.room.StopUi
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

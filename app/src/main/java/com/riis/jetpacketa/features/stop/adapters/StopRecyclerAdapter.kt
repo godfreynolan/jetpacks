@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.riis.jetpacketa.R
 import com.riis.jetpacketa.databinding.RecyclerViewItemBinding
-import com.riis.jetpacketa.features.stop.model.StopUi
+import com.riis.jetpacketa.features.stop.room.StopUi
 
 typealias OnItemClicked = (StopUi, Boolean, Int) -> Unit
 
