@@ -2,17 +2,13 @@ package com.riis.jetpacketa.database
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteCantOpenDatabaseException
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import com.riis.jetpacketa.BuildConfig
 import com.riis.jetpacketa.features.company.model.Company
 import com.riis.jetpacketa.features.route.model.Route
-import com.riis.jetpacketa.features.stop.model.Stop
-import com.riis.jetpacketa.features.stop.model.StopTime
 import com.riis.jetpacketa.features.stop.model.StopUi
-import com.riis.jetpacketa.features.stop.model.Trip
 import java.io.*
 
 
@@ -20,7 +16,7 @@ class SqliteHelper(private val context: Context): SqliteHelperInterface {
 
     companion object {
         private const val TAG = "SqliteHelper"
-        const val DB_NAME = "jetpacketa.db"
+        const val DB_NAME = "gtfs_room.db"
     }
 
     @SuppressLint("SdCardPath")
@@ -179,145 +175,15 @@ class SqliteHelper(private val context: Context): SqliteHelperInterface {
         return newRoutes
     }
 
-    fun getTripsFromRoute(routeId: Int): List<Trip> {
-        val trips = mutableListOf<Trip>()
-        val query = db.rawQuery("SELECT * FROM trips WHERE route_id = ?", listOf(routeId.toString()).toTypedArray()
-        )
-        if(query.count > 0) {
-            query.moveToFirst()
-            do {
-                // Get the column indexes from the query
-                val tripIdColumnIndex = query.getColumnIndex("trip_id")
-                val routeIdColumnIndex = query.getColumnIndex("route_id")
-                val serviceIdColumnIndex = query.getColumnIndex("service_id")
-                val tripHeadSignColumnIndex = query.getColumnIndex("trip_headsign")
-                val tripShortNameColumnIndex = query.getColumnIndex("trip_short_name")
-                val directionIdColumnIndex = query.getColumnIndex("direction_id")
-                val blockIdColumnIndex = query.getColumnIndex("block_id")
-                val shapeIdColumnIndex = query.getColumnIndex("shape_id")
-                val wheelChairAccessibleColumnIndex = query.getColumnIndex("wheelchair_accessible")
-                val bikesAllowedColumnIndex = query.getColumnIndex("bikes_allowed")
-
-                // Check if any the columns do not exist
-                if (
-                    tripIdColumnIndex == -1 ||
-                    routeIdColumnIndex == -1 ||
-                    serviceIdColumnIndex == -1 ||
-                    tripHeadSignColumnIndex == -1 ||
-                    tripShortNameColumnIndex == -1 ||
-                    directionIdColumnIndex == -1 ||
-                    blockIdColumnIndex == -1 ||
-                    shapeIdColumnIndex == -1 ||
-                    wheelChairAccessibleColumnIndex == -1 ||
-                    bikesAllowedColumnIndex == -1
-                ) continue
-
-                // Get the values from the record
-                val tripId = query.getInt(tripIdColumnIndex)
-                val routeId = query.getInt(routeIdColumnIndex)
-                val serviceId = query.getInt(serviceIdColumnIndex)
-                val tripHeadSign = query.getString(tripHeadSignColumnIndex)
-                val tripShortName = query.getString(tripShortNameColumnIndex)
-                val directionId = query.getInt(directionIdColumnIndex)
-                val blockId = query.getInt(blockIdColumnIndex)
-                val shapeId = query.getString(shapeIdColumnIndex)
-                val wheelChairAccessible = query.getInt(wheelChairAccessibleColumnIndex)
-                val bikesAllowed = query.getInt(bikesAllowedColumnIndex)
-
-                // Create the `Company` Object
-                trips.add(
-                    Trip(
-                        tripId,
-                        routeId,
-                        serviceId,
-                        tripHeadSign,
-                        tripShortName,
-                        directionId,
-                        blockId,
-                        shapeId,
-                        wheelChairAccessible,
-                        bikesAllowed
-                    )
-                )
-            } while (query.moveToNext())
-        }
-        query.close()
-        return trips
-    }
-
-    fun getStopTimesFromTrip(tripId: Int): List<StopTime> {
-        val stopTimes = mutableListOf<StopTime>()
-        val query = db.rawQuery("SELECT * FROM stop_times WHERE trip_id = ?", listOf(tripId.toString()).toTypedArray()
-        )
-        if(query.count > 0) {
-            query.moveToFirst()
-            do {
-                // Get the column indexes from the query
-                val tripIdColumnIndex = query.getColumnIndex("trip_id")
-                val arrivalTimeColumnIndex = query.getColumnIndex("arrival_time")
-                val departureTimeColumnIndex = query.getColumnIndex("departure_time")
-                val stopIdSignColumnIndex = query.getColumnIndex("stop_id")
-                val stopSequenceColumnIndex = query.getColumnIndex("stop_sequence")
-                val stopHeadSignColumnIndex = query.getColumnIndex("stop_headsign")
-                val pickUpTypeColumnIndex = query.getColumnIndex("pickup_type")
-                val dropOffTypeColumnIndex = query.getColumnIndex("drop_off_type")
-                val shapeDistTraveledColumnIndex = query.getColumnIndex("shape_dist_traveled")
-                val timePointColumnIndex = query.getColumnIndex("timepoint")
-
-                // Check if any the columns do not exist
-                if (
-                    tripIdColumnIndex == -1 ||
-                    arrivalTimeColumnIndex == -1 ||
-                    departureTimeColumnIndex == -1 ||
-                    stopIdSignColumnIndex == -1 ||
-                    stopSequenceColumnIndex == -1 ||
-                    stopHeadSignColumnIndex == -1 ||
-                    pickUpTypeColumnIndex == -1 ||
-                    dropOffTypeColumnIndex == -1 ||
-                    shapeDistTraveledColumnIndex == -1 ||
-                    timePointColumnIndex == -1
-                ) continue
-
-                // Get the values from the record
-                stopTimes.add(
-                    StopTime(
-                        query.getInt(tripIdColumnIndex),
-                        query.getString(arrivalTimeColumnIndex),
-                        query.getString(departureTimeColumnIndex),
-                        query.getInt(stopIdSignColumnIndex),
-                        query.getInt(stopSequenceColumnIndex),
-                        query.getString(stopHeadSignColumnIndex),
-                        query.getInt(pickUpTypeColumnIndex),
-                        query.getInt(dropOffTypeColumnIndex),
-                        query.getString(shapeDistTraveledColumnIndex),
-                        query.getInt(timePointColumnIndex)
-                    )
-                )
-            } while (query.moveToNext())
-        }
-        query.close()
-        return stopTimes
-    }
-
-     override fun getStopsForRoute(routeId: Int, companyId: Int): List<StopUi> {
+    override fun getStopsForRoute(routeId: Int, companyId: Int): List<StopUi> {
         val stops = mutableListOf<StopUi>()
-//        val query = db.rawQuery(
-//            "SELECT DISTINCT stops.stop_id, stops.stop_name\n" +
-//                    "  FROM trips\n" +
-//                    "  INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id\n" +
-//                    "  INNER JOIN stops ON stops.stop_id = stop_times.stop_id\n" +
-//                    "  WHERE route_id = ?;",
-//            listOf<String>(routeId.toString()).toTypedArray()
-//        )
 
         val query = db.rawQuery(
-            "SELECT DISTINCT stops.stop_id, stops.stop_name\n" +
-                    "  FROM trips\n" +
-                    "  INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id\n" +
-                    "  INNER JOIN stops ON stops.stop_id = stop_times.stop_id\n" +
-                    "  INNER JOIN routes ON routes.route_id = trips.route_id\n" +
-                    "  INNER JOIN agency ON agency.agency_id = routes.agency_id\n" +
-                    "  WHERE trips.route_id = ? and routes.agency_id = ?;",
+            "SELECT DISTINCT stops.* " +
+                    "  FROM trips " +
+                    "  INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id and stop_times.agency_id = trips.agency_id " +
+                    "  INNER JOIN stops ON stops.stop_id = stop_times.stop_id and stops.agency_id = stop_times.agency_id" +
+                    "  WHERE trips.route_id = ? and trips.agency_id = ?;",
             listOf<String>(routeId.toString(), companyId.toString()).toTypedArray()
         )
 
