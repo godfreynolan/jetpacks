@@ -1,83 +1,135 @@
-# Benchmark
+# Navigation
 ## Setup
-To setup the `Benchmark` jetpack, this [guide](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview) from the Android developer documentation was followed. This will create a new module in the project to contain `macro` and/or `micro` benchmark tests.
-
-In addition, the following line will need to be added to the `project` level `build.gradle
+To add `navigation` to this project, the following dependencies were added to the `app` level `build.gradle`
 ```gradle
-plugins {
+  // Navigation
+  def navigation_version = "2.5.3"
+  implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
+  implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
+```
+
+## NavGraph
+To use navigation in fragments, they must first be defined in a NavGraph. This will also contain the different actions that each fragment can perfom. For example, the `CompaniesFragment` will have a defined action for displaying the `StopsFragment`
+
+In the `res` folder, and new folder called `navigation` was created. In this folder, the file `nav_graph.xml` was created.
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/nav_graph">
+
+</navigation>
+```
+
+Next, the three fragmens `CompaniesFragment`, `RoutseFragment`, and `StopsFragment` were defined and `CompaniesFragment` was set as the `startDestination`.
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/nav_graph"
+  app:startDestination="@id/CompanyFragment">
+
+  <fragment
+    android:id="@+id/CompanyFragment"
+    android:name="com.riis.jetpacketa.features.company.CompaniesFragment"
+    android:label="@string/label_companies_fragment"
+    tools:layout="@layout/fragment_company">
+  </fragment>
+
+  <fragment
+    android:id="@+id/RoutesFragment"
+    android:name="com.riis.jetpacketa.features.route.RoutesFragment"
+    android:label="@string/label_routes_fragment"
+    tools:layout="@layout/fragment_route">
+  </fragment>
+
+  <fragment
+    android:id="@+id/StopsFragment"
+    android:name="com.riis.jetpacketa.features.stop.StopsFragment"
+    android:label="@string/label_stops_fragment"
+    tools:layout="@layout/fragment_stops">
+  </fragment>
+</navigation>
+```
+
+Finally, actions were setup that allowed the `CompaniesFragment` to show the `RoutesFrgment` and the `RoutesFragment` to show the `StopsFragment`
+```xml
+  ...
+
+  <fragment
+    android:id="@+id/CompanyFragment"
+    android:name="com.riis.jetpacketa.features.company.CompaniesFragment"
+    android:label="@string/label_companies_fragment"
+    tools:layout="@layout/fragment_company">
+
+    <action
+      android:id="@+id/action_CompaniesFragment_to_RoutesFragment"
+      app:destination="@id/RoutesFragment" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/RoutesFragment"
+    android:name="com.riis.jetpacketa.features.route.RoutesFragment"
+    android:label="@string/label_routes_fragment"
+    tools:layout="@layout/fragment_route">
+
+    <action
+      android:id="@+id/action_RoutesFragment_to_StopsFragment"
+      app:destination="@id/StopsFragment" />
+  </fragment>
+
 
   ...
 
-  id 'com.android.test' version '7.3.1' apply false
+```
+
+## MainActivity
+Now that the `NavGraph` has been created, `MainActivity` needs to use it. In the `activity_main.xml`, the `FrameLayout` was replaced with a `fragment` element that points to the `NavGraph`.
+```xml
+  ...
+
+  <fragment
+    android:id="@+id/nav_host_fragment_container"
+    android:name="androidx.navigation.fragment.NavHostFragment"
+    app:layout_constraintTop_toBottomOf="@id/appBar"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:navGraph="@navigation/nav_graph"
+    app:defaultNavHost="true"/>
+
+  ...
+```
+
+In `MainActivity`'s `onCreate` function, the navigation controller is setup
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+  
+  ...
+
+  val navController = findNavController(R.id.nav_host_fragment_container)
+  appBarConfiguration = AppBarConfiguration(navController.graph)
+  setupActionBarWithNavController(navController, appBarConfiguration)
 }
 ```
 
-## Macro Benchmark
-In this project, a `macro` benchmark was created to time how long it takes to populate the `companies`, `routes`, and `stops` recycler views with data from the database. In the new `benchmark` module, a new file called `LoadStopsBenchmark.kt` was created and setup for a `macro` benchmark
+In addition, the `onSupportNavigate` was overridden to use the new navigation controller
 ```kotlin
-@LargeTest
-@RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMetricApi::class)
-class LoadStopsBenchmark {
-  @get:Rule
-  val benchmarkRule = MacrobenchmarkRule()
-
+override fun onSupportNavigateUp(): Boolean {
+    val navController = findNavController(R.id.nav_host_fragment_container)
+    return navController.navigateUp(appBarConfiguration)
+            || super.onSupportNavigateUp()
 }
 ```
 
-Next, a simple test to load the app once was created
+## Fragments
+In the `CompaniesFragment` and the `RoutesFragment`, the `supportFragmentManager` transactions can be replaced. In the `CompaniesFragment`, the following code replaced the original `supportFragmentManager` transaction
 ```kotlin
-...
-
-@Test
-fun startup() = benchmarkRule.measureRepeated(
-    packageName = "com.riis.jetpacketa",
-    metrics = listOf(StartupTimingMetric()),
-    iterations = 1,
-    setupBlock = {
-        // Press home button before each run to ensure the starting activity isn't visible.
-        pressHome()
-    }
-) {
-    // starts default launch activity
-    startActivityAndWait()
-
-}
-```
-> Note: To run the test, the `Build Variant` of the application must be switched from `debug` to `benchmark`
-
-Next, the test to load each fragment (companies, routes, and stops was created). It will run 4 iterations. In each iteration, a different route will be loaded. In addition, after each iteration, the `back` button will be pressed twice to return the phone back to the `companies` fragment. This prepares the device for the next iteration.
-```kotlin
-...
-
-@Test
-fun loadRoutes() {
-    benchmarkRule.measureRepeated(
-        packageName = "com.riis.jetpacketa",
-        metrics = listOf(TraceSectionMetric("RV Load Routes")),
-        iterations = 4,
-        setupBlock = {
-            device.pressBack()
-            device.pressBack()
-            pressHome()
-            startActivityAndWait()
-        }
-    ) {
-        Trace.beginSection("RV Load Routes")
-        val companyRecyclerView = device.findObject(By.res("com.riis.jetpacketa", "companyRecyclerView"))
-        companyRecyclerView.children[0].click()
-
-        val routesRecyclerView = device.findObject(By.res("com.riis.jetpacketa", "routeRecyclerView"))
-        routesRecyclerView.children[iteration ?: 0].click()
-
-        check(device.wait(Until.hasObject(By.res("com.riis.jetpacketa", "stopsRecyclerView")), 2000)) {
-            "RecyclerView not found after waiting 2000 ms."
-        }
-        val stopsRecyclerView = device.findObject(By.res("com.riis.jetpacketa", "stopsRecyclerView"))
-        check(stopsRecyclerView.children.size > 0) {
-            "RecyclerView not populated"
-        }
-        Trace.endSection()
-    }
-}
+findNavController()
+  .navigate(
+    R.id.action_CompaniesFragment_to_RoutesFragment,
+    bundleOf("companyId" to it.id, "companyName" to it.name)
+  )
 ```
