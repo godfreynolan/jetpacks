@@ -10,9 +10,9 @@ kapt "androidx.room:room-compiler:$room_version"
 ```
 
 ## Entities
-To use `room`, entities need to be described that model the table in the database. Therfore, following the schema of each table in the database, entities were created for every table.
+To use `room`, entities need to be described that model the tables in the database. Therefore, entities were created for every table in the database by following the schema of each table.
 
-In each `features` folder, a folder called `room` was created.
+In each `features` subdirectory, a folder called `room` was created.
 In the `features > company > room` folder, the `company` data class was transformed to a `room` entity.
 ```kotlin
 @Entity(tableName = "agency")
@@ -199,9 +199,9 @@ interface StopDAO {
 ```
 
 ## Repository
-For each DAO, a `repository` was created to handle the the function calls. This is so the database object can be abstracted away from the `ViewModel`. These repositories will also be dependency injected into the view models.
+For each DAO, a `repository` was created to handle the the function calls. This allowed the database object to be abstracted away from the `ViewModel`. These repositories were also dependency injected into the view models.
 
-In the `features > company > reposiotry` folder, an interface called `CompanyRepository` was created. In it, a function to get all companies was defined. Then, a class called `CompanyRepositoryImpl` was created and implemented the corresponding interface. In addition, the `CompanyDao` was injected into the implementation of the interface.
+In the `features > company > reposiotry` folder, an interface called `CompanyRepository` was created. In it, a function to get all companies was defined. Then, a class called `CompanyRepositoryImpl` was created which implemented the corresponding interface. In addition, the `CompanyDao` was injected into the implementation of the interface.
 
 ```kotlin
 interface CompanyRepository {
@@ -219,7 +219,7 @@ class CompanyRepositoryImpl @Inject constructor(
 }
 ```
 
-In the `features > route > reposiotry` folder, an interface called `RouteRepository` was created. In it, a function to get all routes was defined. Then, a class called `RouteRepositoryImpl` was created and implemented the corresponding interface. In addition, the `RouteDao` was injected into the implementation of the interface.
+In the `features > route > reposiotry` folder, an interface called `RouteRepository` was created. In it, a function to get all routes was defined. Then, a class called `RouteRepositoryImpl` was created which implemented the corresponding interface. In addition, the `RouteDao` was injected into the implementation of the interface.
 
 ```kotlin
 interface RouteRepository {
@@ -238,7 +238,7 @@ class RouteRepositoryImpl @Inject constructor(
 }
 ```
 
-In the `features > stop > reposiotry` folder, an interface called `StopRepository` was created. In it, a function to get all stops was defined. Then, a class called `StopRepositoryImpl` was created and implemented the corresponding interface. In addition, the `StopDao` was injected into the implementation of the interface.
+In the `features > stop > reposiotry` folder, an interface called `StopRepository` was created. In it, a function to get all stops was defined. Then, a class called `StopRepositoryImpl` was created which implemented the corresponding interface. In addition, the `StopDao` was injected into the implementation of the interface.
 
 ```kotlin
 interface StopRepository {
