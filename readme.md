@@ -1,348 +1,357 @@
-# Room
+# Compose
 ## Setup
-To add `room` to the project, the following dependencies were added to the `app` level `build.gradle`
+To add `compose` to the project, the following dependencies were added to the `app` level `build.gradle`
 ```gradle
-// Room
-def room_version = "2.4.3"
-implementation "androidx.room:room-runtime:$room_version"
-annotationProcessor "androidx.room:room-compiler:$room_version"
-kapt "androidx.room:room-compiler:$room_version"
+// Compose
+def compose_version = "1.3.1"
+implementation "androidx.compose.ui:ui:$compose_version"
+implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+implementation "androidx.activity:activity-compose:$compose_version"
+implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+implementation "androidx.compose.material:material:$compose_version"
+androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+implementation "androidx.navigation:navigation-compose:2.6.0-alpha03"
 ```
 
-## Entities
-To use `room`, entities need to be described that model the table in the database. Therfore, following the schema of each table in the database, entities were created for every table.
+## Project Structure
+A package called `ui` was created in the app directory. Inside the `ui` package, three more packages were created: `screens`, `theme`, and `shared`.
 
-In each `features` folder, a folder called `room` was created.
-In the `features > company > room` folder, the `company` data class was transformed to a `room` entity.
-```kotlin
-@Entity(tableName = "agency")
-data class Company(
-  @PrimaryKey
-  @ColumnInfo(name = "agency_id")
-  val id: Int,
-  @ColumnInfo(name = "agency_name")
-  val name: String,
-  @ColumnInfo(name = "agency_url")
-  val url: String,
-  @ColumnInfo(name = "agency_timezone")
-  val timezone: String,
-  @ColumnInfo(name = "agency_lang")
-  val lang: String?,
-  @ColumnInfo(name = "agency_phone")
-  val phone: String?,
-  @ColumnInfo(name = "agency_fare_url")
-  val fare_url: String? = null,
-  @ColumnInfo(name = "agency_email")
-  val email: String? = null
-)
-```
-In the `features > route > room` folder, the `route` data class was transformed to a `room` entity.
-```kotlin
-@Entity(tableName = "routes", primaryKeys = ["route_id", "agency_id"])
-data class Route(
-  @ColumnInfo(name = "route_id")
-  val routeId: Int,
-  @ColumnInfo(name = "agency_id")
-  val companyId: Int,
-  @ColumnInfo(name = "route_short_name")
-  val routeShortName: String?,
-  @ColumnInfo(name = "route_long_name")
-  val routeLongName: String?,
-  @ColumnInfo(name = "route_desc")
-  val routeDesc: String?,
-  @ColumnInfo(name = "route_type")
-  val routeType: Int,
-  @ColumnInfo(name = "route_url")
-  val routeUrl: String?,
-  @ColumnInfo(name = "route_color")
-  val routeColor: String?,
-  @ColumnInfo(name = "route_text_color")
-  val routeTextColor: String?
-)
-```
-In the `features > route > room` folder, the `Stop`, `StopTime`, and `Trip` data classes were transformed into `room` entities.
+## Theme
+The `theme` folder will contain theming objects that can be provided to the composables created. In the `theme` folder, four files were created: `color.kt`, `shape.kt`, `theme.kt`, and `Type.kt`
+<br>
 
+`Color.kt`
 ```kotlin
-@Entity(
-  tableName = "stops",
-  primaryKeys = ["stop_id", "agency_id"]
-)
-data class Stop(
-  @ColumnInfo(name = "stop_id")
-  val stopId: Int,
-  @ColumnInfo(name = "stop_code")
-  val stopCode: String?,
-  @ColumnInfo(name = "stop_name")
-  val stopName: String?,
-  @ColumnInfo(name = "stop_desc")
-  val stopDesc: String?,
-  @ColumnInfo(name = "stop_lat")
-  val stopLat: String?,
-  @ColumnInfo(name = "stop_lon")
-  val stopLon: String?,
-  @ColumnInfo(name = "zone_id")
-  val zoneId: Int?,
-  @ColumnInfo(name = "stop_url")
-  val stopUrl: String?,
-  @ColumnInfo(name = "location_type")
-  val locationType: Int?,
-  @ColumnInfo(name = "parent_station")
-  val parentStation: Int?,
-  @ColumnInfo(name = "stop_timezone")
-  val stopTimezone: String?,
-  @ColumnInfo(name = "wheelchair_boarding")
-  val wheelChairBoarding: Int?,
-  @ColumnInfo(name = "agency_id")
-  val agencyId: Int
-)
-```
-```kotlin
-@Entity(
-  tableName = "stop_times",
-  primaryKeys = ["trip_id", "stop_id", "stop_sequence", "agency_id"],
-  indices = [
-      Index(value = arrayOf("trip_id"))
-  ]
-)
-data class StopTime(
-  @ColumnInfo(name = "trip_id")
-  val tripId: Int,
-  @ColumnInfo(name = "arrival_time")
-  val arrivalTime: String?,
-  @ColumnInfo(name = "departure_time")
-  val departureTime: String?,
-  @ColumnInfo(name = "stop_id")
-  val stopId: Int,
-  @ColumnInfo(name = "stop_sequence")
-  val stopSequence: Int,
-  @ColumnInfo(name = "stop_headsign")
-  val stopHeadSign: String?,
-  @ColumnInfo(name = "pickup_type")
-  val pickUpType: Int?,
-  @ColumnInfo(name = "drop_off_type")
-  val dropOffType: Int?,
-  @ColumnInfo(name = "shape_dist_traveled")
-  val shapeDistTraveled: String?,
-  @ColumnInfo(name = "timepoint")
-  val timePoint: Int?,
-  @ColumnInfo(name = "agency_id")
-  val agencyId: Int
-)
-```
-```kotlin
-@Entity(
-  tableName = "trips",
-  primaryKeys = ["trip_id", "route_id", "direction_id", "shape_id", "agency_id"],
-  indices = [
-      Index(value = arrayOf("route_id"))
-  ]
-)
-data class Trip(
-  @ColumnInfo(name = "trip_id")
-  val tripId: Int,
-  @ColumnInfo(name = "route_id")
-  val routeId: Int,
-  @ColumnInfo(name = "service_id")
-  val serviceId: Int,
-  @ColumnInfo(name = "trip_headsign")
-  val tripHeadSign: String?,
-  @ColumnInfo(name = "trip_short_name")
-  val tripShortName: String?,
-  @ColumnInfo(name = "direction_id")
-  val directionId: Int,
-  @ColumnInfo(name = "block_id")
-  val blockId: Int?,
-  @ColumnInfo(name = "shape_id")
-  val shapeId: String,
-  @ColumnInfo(name = "wheelchair_accessible")
-  val wheelchairAccessible: Int?,
-  @ColumnInfo(name = "bikes_allowed")
-  val bikesAllowed: Int?,
-  @ColumnInfo(name = "agency_id")
-  val agencyId: Int
-)
-
+val Purple200 = Color(0xFFBB86FC)
+val Purple500 = Color(0xFF6200EE)
+val Purple700 = Color(0xFF3700B3)
+val Teal200 = Color(0xFF03DAC5)
 ```
 
-## DAOs
-`Room` DAOs perform the queries on the database. Therefore, each feature will contain a DAO. In the `features > company > room` folder, the interface `CompanyDAO` was created. In addition, a function was added that describes the query to retrieve a list of `company` objects.
+`Shape.kt`
 ```kotlin
-@Dao
-interface CompanyDAO {
-    @Query("SELECT * FROM agency")
-    fun getCompanies(): List<Company>
-}
+val Shapes = Shapes(
+  small = RoundedCornerShape(8.dp),
+  medium = RoundedCornerShape(5.dp),
+  large = RoundedCornerShape(0.dp)
+)
 ```
 
-In the `features > route > room` folder, the interface `RouteDAO` was created. In addition, a function was added that describes the query to retrieve a list of `route` objects given a `companyId`.
+`Theme.kt`
 ```kotlin
-@Dao
-interface RouteDAO {
-    @Query("SELECT * FROM routes WHERE agency_id = :companyId")
-    fun getRoutes(companyId: Int): List<Route>
-}
-```
+private val DarkColorPalette = darkColors(
+  primary = Purple200,
+  primaryVariant = Purple700,
+  secondary = Teal200
+)
 
-In the `features > stop > room` folder, the interface `StopDAO` was created. In addition, a function was added that describes the query to retrieve a list of `stop` objects given a `companyId` and `routeId`.
-```kotlin
-@Dao
-interface StopDAO {
-  @Query(
-      "SELECT DISTINCT stops.* " +
-        "  FROM trips " +
-        "  INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id and stop_times.agency_id = trips.agency_id " +
-        "  INNER JOIN stops ON stops.stop_id = stop_times.stop_id and stops.agency_id = stop_times.agency_id" +
-        "  WHERE trips.route_id = :routeId and trips.agency_id = :companyId;",
+private val LightColorPalette = lightColors(
+  primary = Purple500,
+  primaryVariant = Purple700,
+  secondary = Teal200
+)
+
+@Composable
+fun SampleComposeAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+  val colors = if (darkTheme) {
+    DarkColorPalette
+  } else {
+    LightColorPalette
+  }
+
+  MaterialTheme(
+    colors = colors,
+    typography = Typography,
+    shapes = Shapes,
+    content = content
   )
-  fun getStopsForRoute(routeId: Int, companyId: Int): List<Stop>
 }
 ```
 
-## Repository
-For each DAO, a `repository` was created to handle the the function calls. This is so the database object can be abstracted away from the `ViewModel`. These repositories will also be dependency injected into the view models.
-
-In the `features > company > reposiotry` folder, an interface called `CompanyRepository` was created. In it, a function to get all companies was defined. Then, a class called `CompanyRepositoryImpl` was created and implemented the corresponding interface. In addition, the `CompanyDao` was injected into the implementation of the interface.
-
+`Type.kt`
 ```kotlin
-interface CompanyRepository {
-    fun getCompanies(): List<Company>
+val Typography = Typography(
+  body1 = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = FontWeight.Normal,
+    fontSize = 20.sp
+  )
+)
+```
+
+
+## List View Items
+### ListViewItem
+The `recycler_view_item.xml` is shared across most of the recycler adapters. Therefore, a composable called `ListViewItem` was created inside the `shared` folder. 
+<br>
+
+The `preview` composable allows for quick rendering while writing the code. In the `ListViewItem` function, a `Row` element was created. Then, a `Card` composable was placed inside of it with the same styling attributes as `recycler_view_item.xml`. Finally, a `Text` composable was placed in the card to display the information.
+```kotlin
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+fun DefaultListViewPreview() {
+    ListViewItem(displayText = "SMART")
+}
+
+@Composable
+fun ListViewItem(displayText: String, onClick: (() -> Unit)? = null) {
+  Row {
+    Card(
+      elevation = 5.dp,
+      shape = Shapes.medium,
+      modifier = Modifier
+        .padding(
+            start = 10.dp,
+            end = 10.dp,
+            top = 5.dp,
+            bottom = 5.dp
+        )
+        .fillMaxWidth()
+        .clickable { onClick?.invoke() }
+    ) {
+      Text (
+        text = displayText,
+        style = Typography.body1,
+        modifier = Modifier
+          .widthIn(18.dp)
+          .padding (
+            start = 10.dp,
+            end = 10.dp,
+            top = 5.dp,
+            bottom = 5.dp
+        )
+      )
+    }
+  }
+}
+```
+### FavoriteListViewItem
+For the `stops` fragment, there was a `favorite` button on the item. Therefore, a new file called `FavoriteListViewItem` was created inside the `shared` folder. It is very similar to `ListViewItem` but contains an `IconButton` with an `onClick` callback for the icon instead of the item itself.
+```kotlin
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+fun DefaultFavoriteListViewPreview() {
+    FavoriteStopListViewItem(stop = StopUi(32, "Test & Sample", false))
+}
+
+@Composable
+fun FavoriteStopListViewItem(stop: StopUi, onClick: (() -> Unit)? = null) {
+  Row {
+    Card(
+      elevation = 5.dp,
+      shape = Shapes.medium,
+      modifier = Modifier
+        .padding(
+            start = 10.dp,
+            end = 10.dp,
+            top = 5.dp,
+            bottom = 5.dp
+        )
+        .fillMaxWidth()
+    ) {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+      ) {
+        Text (
+          text = stop.stopName,
+          style = Typography.body1,
+          modifier = Modifier
+            .padding(
+              start = 10.dp,
+              end = 10.dp,
+              top = 5.dp,
+              bottom = 5.dp
+            )
+        )
+        IconButton(
+            onClick = { onClick?.invoke() }
+        ) {
+          Icon(
+            if(stop.favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            "Favorite this item.",
+            tint = MaterialTheme.colors.primary,
+          )
+        }
+      }
+    }
+  }
 }
 ```
 
+## Screens
+A `screens` folder was created inside of the `ui` folder to store all of the screens used by the application. Inside this folder, three files were created: `companies.kt`, `routes,kt`, and `stops,kt`.
+
+### Company
+In this file, three composables were made. The first composable displayed the information to be displayed on the screen. The second composable was a preview that supplied mock data to the first composable. Finally, the third composable was a list view containing individual `ListViewItem`s
+
+The `DefaultCompaniesPreview` composable is responsible for rendering a preview of the screen with mock data.
 ```kotlin
-class CompanyRepositoryImpl @Inject constructor(
-    private val companyDAO: CompanyDAO
-) : CompanyRepository {
-    override fun getCompanies(): List<Company> {
-        return companyDAO.getCompanies()
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+fun DefaultCompaniesPreview() {
+  val mockCompanyItems = mutableListOf<Company>(
+    Company(1,"SMART","example.com","America/Detroit","en",null,null,null),
+    Company(2,"DDOT","example.com","America/Detroit","en",null,null,null)
+  )
+  Surface {
+    CompaniesListView(companies = mockCompanyItems) {}
+  }
+}
+```
+
+The `CompaniesScreenComposable` is responsible for displaying the entire screen. A `scaffold` was used to include a `TopAppBar` at the top of the screen and then the `CompaniesListView` below it. In addition, the `LiveData` in the `CompaniesViewModel` was casted `asFlow` and then collected. When the `LiveData` updates, only this composable will be re-composed.
+```kotlin
+@Composable
+fun CompaniesScreenComposable(navController: NavController) {
+    val viewModel = hiltViewModel<CompaniesViewModel>()
+    viewModel.getCompanies()
+
+    val companies: List<Company> by viewModel.companies.asFlow().collectAsState(initial = emptyList())
+
+    Scaffold(
+      topBar = {
+        TopAppBar(
+          title = { Text(text = "Companies") },
+        )
+      }, content = {
+        Column(
+            modifier = Modifier
+              .padding(it)
+              .fillMaxSize(),
+        ) {
+          CompaniesListView(companies = companies) { company ->
+              navController.navigate(Screen.RoutesScreen.withArgs(company.id.toString(), company.name))
+          }
+        }
+      }
+    )
+}
+```
+This `CompaniesListView` composable is responsible for creating the list of companies and propagating the `onClick` event to the main screen.
+```kotlin
+@Composable
+fun CompaniesListView(companies: List<Company>, clicked: ((Company) -> (Unit))) {
+  LazyColumn {
+    items(companies) {
+      ListViewItem(displayText = it.name) { clicked.invoke(it) }
+    }
+  }
+}
+```
+
+### Route
+The `route` screen behaves very similar to that of the `companies` screen.
+
+#### Stop
+The `stop` screen behaves very similar to that of the `companies` screen.
+
+## Navigation
+`Compose` uses `routes` to navigate between screens. Each `route` is defined by a string. In addition, bundle arguments are passed along on this `route` string. Therefore, to keep organization clean. A `Screen` sealed class was created to contain these routes and apply helper functions for initializing required bundle arguments. In the `ui` package, the `Screen` class was created.
+
+```kotlin
+sealed class Screen(val route: String) {
+  object CompaniesScreen : Screen("companies_screen")
+  object RoutesScreen : Screen("routes_screen")
+  object StopsScreen : Screen("stops_screen")
+}
+```
+
+Next requrired argumentes can be defined by appending `/<arguemnt_name>` to the end of the route. Therefore, a helper function called `withArgs` was created to easily append multiple required arguments.
+```kotlin
+sealed class Screen(val route: String) {
+  ...
+
+  /**
+    * Appends required arguments to navigation routes
+    * Idea from Philipp Lackner
+    */
+  fun withArgs(vararg args: String): String {
+    return buildString {
+      append(route)
+      args.forEach { append("/$it") }
+    }
+  }
+}
+```
+Now that the routes have been defined, a `Navigation` composable will handle showing the starting screen and providing the `navController` instance to the other screens. In the `ui` package, a `navigation.kt` file was created. This file describes three composables (one for each screen). Inside each `composable`, the routes and required arguments were defined, the types of the arguments were defined, and the `composable` to be presentented was selected.
+```kotlin
+@Composable
+fun Navigation() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = Screen.CompaniesScreen.route) {
+        composable(route = Screen.CompaniesScreen.route) {
+            CompaniesScreenComposable(navController = navController)
+        }
+        composable(
+            route = Screen.RoutesScreen.route + "/{companyId}/{companyName}",
+            arguments = listOf(
+                navArgument("companyId") {
+                    type = NavType.IntType
+                    nullable = false
+                },
+                navArgument("companyName") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            RoutesScreenComposable(
+                navController = navController,
+                companyId = entry.arguments?.getInt("companyId") ?: -1,
+                companyName = entry.arguments?.getString("companyName") ?: ""
+            )
+        }
+        composable(
+            route = Screen.StopsScreen.route + "/{companyId}/{companyName}/{routeId}/{routeName}",
+            arguments = listOf(
+                navArgument("companyId") {
+                    type = NavType.IntType
+                    nullable = false
+                },
+                navArgument("companyName") {
+                    type = NavType.StringType
+                    nullable = false
+                },
+                navArgument("routeId") {
+                    type = NavType.IntType
+                    nullable = false
+                },
+                navArgument("routeName") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            StopsScreenComposable(
+                navController = navController,
+                companyId = entry.arguments?.getInt("companyId") ?: -1,
+                companyName = entry.arguments?.getString("companyName") ?: "",
+                routeId = entry.arguments?.getInt("routeId") ?: -1,
+                routeName = entry.arguments?.getString("routeName") ?: ""
+            )
+        }
     }
 }
 ```
 
-In the `features > route > reposiotry` folder, an interface called `RouteRepository` was created. In it, a function to get all routes was defined. Then, a class called `RouteRepositoryImpl` was created and implemented the corresponding interface. In addition, the `RouteDao` was injected into the implementation of the interface.
-
+## MainActivity
+Now, all that is left is to adjust the `MainActivity` to use `compose`. The `onCreate` function was replaced with
 ```kotlin
-interface RouteRepository {
-    fun getRoutes(companyId: Int): List<Route>
-}
-```
-
-```kotlin
-class RouteRepositoryImpl @Inject constructor(
-    private val routeDAO: RouteDAO
-) : RouteRepository {
-
-    override fun getRoutes(companyId: Int): List<Route> {
-        return routeDAO.getRoutes(companyId)
-    }
-}
-```
-
-In the `features > stop > reposiotry` folder, an interface called `StopRepository` was created. In it, a function to get all stops was defined. Then, a class called `StopRepositoryImpl` was created and implemented the corresponding interface. In addition, the `StopDao` was injected into the implementation of the interface.
-
-```kotlin
-interface StopRepository {
-  fun getStops(routeId: Int, companyId: Int): List<StopUi>
-}
-```
-
-```kotlin
-class StopRepositoryImpl @Inject constructor(
-    private val stopDAO: StopDAO
-): StopRepository {
-
-    override fun getStops(routeId: Int, companyId: Int): List<StopUi> {
-        val stops = stopDAO.getStopsForRoute(routeId, companyId)
-        return stops.map { StopUi(it.stopId, it.stopName ?: it.stopId.toString()) }
-    }
-}
-```
-
-## Dependency Injection
-Now, the `RoomDatabase` can be injected into the `DAO`s, the `DAO`s can be injected into the `repositories`, and the `repositories` can be injected into the `ViewModels`.
-
-To instantiate the `RoomDatabase`, the following code was added to the `AppModule` class in the `di` package.
-```kotlin
-...
-
-@Singleton // Tell Dagger-Hilt to create a singleton accessible everywhere in ApplicationCompenent (i.e. everywhere in the application)
-@Provides
-fun provideJetpackEtaDatabase(
-    @ApplicationContext appContext: Context
-) = Room.databaseBuilder(appContext, AppDatabase::class.java, "jetpack.db")
-    .createFromAsset("gtfs_room.db")
-    .fallbackToDestructiveMigration()
-    .build()
-
-...
-```
-
-Next, the database can be injected into each of the `DAO`s
-```kotlin
-...
-
-@Singleton
-@Provides
-// Provide the `CompanyDAO` to be injected into the `Company` repository
-fun provideCompanyDao(db: AppDatabase) = db.companyDao()
-
-@Singleton
-@Provides
-// Provide the `RouteDAO` to be injected into the `Route` repository
-fun provideRouteDao(db: AppDatabase) = db.routeDao()
-
-@Singleton
-@Provides
-// Provide the `StopDAO` to be injected into the `Stop` repository
-fun provideStopDao(db: AppDatabase) = db.stopDao()
-
-...
-```
-
-Then, the `DAO`s can be injected into the repositories
-```kotlin
-...
-
-@Singleton
-@Provides
-fun provideCompanyRepository(companyDao: CompanyDAO): CompanyRepository = CompanyRepositoryImpl(companyDao)
-
-@Singleton
-@Provides
-fun provideRouteRepository(routeDAO: RouteDAO): RouteRepository = RouteRepositoryImpl(routeDAO)
-
-@Singleton
-@Provides
-fun provideStopRepository(stopDAO: StopDAO): StopRepository = StopRepositoryImpl(stopDAO)
-
-...
-```
-
-All that is left is to replace the `SqliteHelper` injection in each view model with its corresponding repository
-```kotlin
-@HiltViewModel
-class CompaniesViewModel @Inject constructor(
-    private val companyRepository: CompanyRepository
-): ViewModel() {
-  ...
-}
-```
-
-```kotlin
-@HiltViewModel
-class RoutesViewModel @Inject constructor(
-    private val routeRepository: RouteRepository
-): ViewModel() {
-  ...
-}
-```
-
-```kotlin
-@HiltViewModel
-class StopsViewModel @Inject constructor(
-    private val stopRepository: StopRepository,
-    private val encryptedSharedPrefs: EncryptedSharedPrefsHelper
-): ViewModel() {
-  ...
+override fun onCreate(savedInstanceState: Bundle?) {
+  super.onCreate(savedInstanceState)
+  setContent {
+      SampleComposeAppTheme {
+          Navigation()
+      }
+  }
 }
 ```

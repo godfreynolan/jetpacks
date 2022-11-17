@@ -7,13 +7,12 @@ sealed class Screen(val route: String) {
 
     /**
      * Appends required arguments to navigation routes
+     * Idea from Philipp Lackner
      */
     fun withArgs(vararg args: String): String {
         return buildString {
             append(route)
-            args.forEach {
-                append("/$it")
-            }
+            args.forEach { append("/$it") }
         }
     }
 }
