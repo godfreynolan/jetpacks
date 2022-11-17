@@ -1,154 +1,203 @@
-# Lifecycle
+# Security
 ## Setup
-With the `lifecycle` jetpack, `ViewModels` and `LiveData` can be used to manage a fragments state outside of it's normal lifecycle. To add it to a project, the following dependencies need to be added to the `app` level `build.gradle`
-> Note: Kotlin coroutines were also added to take advantage of easy asyncronous calls and further demonstrate the use of `LiveData`
+Jetpack Security was added to this project to illustrate how data can be stored securely to `SharedPreferences` through the use of the `EcnryptedSharedPreferences` class. To add it to the project, the following dependency needs to be added to the `app` level `build.gradle`
+> Note: `GSON` was also added to allow us to convert objects directly to strings that can be saved to `EncryptedSharedPreferences`
 ```gradle
-// Lifecycle
-def lifecycle_version = "2.5.1"
-implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-implementation "androidx.fragment:fragment-ktx:1.5.4"
-implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+// Security
+implementation "androidx.security:security-crypto:1.0.0"
+// JSON
+implementation 'com.google.code.gson:gson:2.10'
 ```
-## ViewModels
-Each fragment created in this project recieved its own `AndroidViewModel`. This type of view model behaves similar to `ViewModel` but provides `ApplicationContext`. This allows for the sqlite database to be instantiated directly in the view model.
 
-The following code was added to a new file called `CompaniesViewModel.kt` to create a new instance of an `AndroidViewModel`:
+## Encrypted Shared Preferences
+A new class called `EncryptedSharedPrefsHelper.kt` was created and placed in a new package called `Security`
 ```kotlin
-class CompaniesViewModel(application: Application) : AndroidViewModel(application) {
- // Todo
+class EncryptedSharedPrefsHelper(private val context: Context) {
+
 }
 ```
+> Context will need to be passed to this class to initialize an instance of `EncryptedSharedPreferences`
 
-Next, the corresponding fragment `CompaniesFragment` was updated to get an instance of the view model. The following class-level variable `viewModel` was added
+`EncryptedSharedPreferences` will be instantiated as a class-level variable.
 ```kotlin
+class EncryptedSharedPrefsHelper(private val context: Context) {
 
-class CompaniesFragment: Fragment() {
-
-    companion object {
-        const val TAG = "CompaniesFragment"
+  companion object {
+        private const val TAG = "EncryptedSharedPrefs"
+        private const val FILE_NAME = "jetpack_eta_encrypted_shared_prefs"
     }
 
-    private var _binding: FragmentCompanyBinding? = null
-    private val binding get() = _binding!!
-
-    // Add ViewModel
-    private val viewModel by viewModels<CompaniesViewModel>()
-
-    ...
+  private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+  private val sharedPrefs = EncryptedSharedPreferences.create(
+      FILE_NAME,
+      masterKeyAlias,
+      context,
+      EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+      EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+  )
 }
 ```
 
-Now, any method in the view model can be accessed from the fragment.
-
-### LiveData
-Since the database call can take an indeterminate amount of time, `livedata` can be used to update the fragment when the data is ready.
-
-First, the database was initialized inside the view model
+Next, helper functions will be used to convert `class instances > JSON > strings` so that information in classes can be stored directly into shared preferences. Then, a another function will be responsible for converting the data from `string > JSON > class instance`
 ```kotlin
-class CompaniesViewModel(application: Application) : AndroidViewModel(application) {
-
-  // Initialize Connection to DB
-  private val dbName = "gtfs_room.db"
-  private val dbInputStream = application.applicationContext.assets.open("gtfs_room.db")
-  private val helper = SqliteHelper.getInstance(dbInputStream, dbName)
-}
-```
-
-Then a `MutableLiveData` class-level variable was created to hold the result of the database call.
-```kotlin
-class CompaniesViewModel(application: Application) : AndroidViewModel(application) {
+class EncryptedSharedPrefsHelper(private val context: Context) {
 
   ...
 
-  // Create mutable live data for the `Company` list
-  val companies = MutableLiveData<List<Company>>(emptyList())
+  /**
+  * Saves an Object to Encrypted Shared Preferences
+  */
+  fun <T> savePreference(key: String, value: T) {
+      val gson = Gson()
+      val save = gson.toJson(value)
+      savePreference(key, save)
+  }
+
+  /**
+    * Saves a string to Encrypted Shared Preferences
+    */
+  private fun savePreference(key: String, value: String): Boolean {
+      return sharedPrefs
+          .edit()
+          .putString(key, value)
+          .commit()
+  }
+
+  fun <T> getPreference(key: String, ofClass: Type): T? {
+      val retrieved = sharedPrefs.getString(key, "") ?: return null
+      return Gson().fromJson(retrieved, ofClass)
+  }
 }
 ```
 
-### Coroutines
-A coroutine on the `IO` thread will be created when the `getCompanies` function is called. When the list is ready, the list will be posted to the `companies` live data on the Main (UI) thread.
+## View Model
+Now, an instance of the `EncryptedSharedPrefsHelper` can be instantiated by the `ViewModel` and used to store information securely. In this project, it will be used to store a user's favorite routes.
+
+In the `StopsViewModel`, the encrypted shared preferences was instantiated and two functions were created to retrieve, favorite, and unfavorite routes
 ```kotlin
-class CompaniesViewModel(application: Application) : AndroidViewModel(application) {
+class StopsViewModel(application: Application) : AndroidViewModel(application) {
+
   ...
 
-  fun getCompanies() {
-    // Launch new Coroutine for fetching the DB data
+  private val encryptedSharedPrefs = EncryptedSharedPrefsHelper(application.applicationContext)
+
+  ...
+
+  fun favorite(position: Int) {
     viewModelScope.launch(Dispatchers.IO) {
-        val newCompanies = helper.getCompanies()
-
-        // On the `Main` Thread, post the new companies
+        val tempStops = stops.value?.toMutableList() ?: mutableListOf()
+        tempStops[position].favorite = true
+        val favorites = getFavorites()
+        favorites.add(tempStops[position])
+        encryptedSharedPrefs.savePreference(FAVORITE_STOPS, favorites)
         withContext(Dispatchers.Main) {
-            companies.postValue(newCompanies)
+            stops.postValue(tempStops)
         }
     }
-
   }
 
-}
+  fun removeFavorite(stop: StopUi, position: Int) {
+    viewModelScope.launch(Dispatchers.IO) {
+        val tempStops = stops.value?.toMutableList() ?: mutableListOf()
+        tempStops[position].favorite = false
+        val favorites = getFavorites()
+        favorites.removeIf { it.stopId == stop.stopId && it.stopName == stop.stopName }
+        encryptedSharedPrefs.savePreference(FAVORITE_STOPS, favorites)
 
+        withContext(Dispatchers.Main) {
+            stops.postValue(tempStops)
+        }
+    }
+  }
+
+  private fun getFavorites(): MutableList<StopUi> {
+    val typeToken = object : TypeToken<MutableList<StopUi>>() {}.type
+    return encryptedSharedPrefs.getPreference(FAVORITE_STOPS, typeToken) ?: mutableListOf()
+  }
+}
 ```
 
-## Fragments
-In the fragment, the companies function will need to be called. In the `onCreateView`, the call to the `getCompanies` view model function was called
-```kotlin
-override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
-): View {
-    _binding = FragmentCompanyBinding.inflate(inflater, container, false)
+## Fragment / Recycler Adapter
+In the `StopsFragment`, the favorite function / unfavorite functions can be called when the favorite button is clicked on a stop. In the `recycler_view_item.xml`, a `star` icon was added.
+```xml
+  ...
 
-    // Fetch the company list
-    viewModel.getCompanies()
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-    ...
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="SMART"
+        android:textSize="20sp"
+        style="@style/TextAppearance.AppCompat.Headline"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingEnd="10dp" />
 
-}
-```
+    <ImageView
+        android:id="@+id/favoriteImageView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="5dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_star_outline_24"
+        app:tint="@color/purple_700" />
 
-### Observers
-Now that the data is being fetched, it needs to now update the recycler view list on the UI. To do so, an observer was set up to listen for changes to the `companies` live data from the fragment. Whenever the data changes, the observer will be notified with the new value.
-
-An `Observer` was added as a class-level variable to the fragment that clears the current list of the recycler adapter, adds all of the items from the newly fetched data, and notifies the adapter of the data change.
-```kotlin
-class CompaniesFragment: Fragment() {
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   ...
 
-  // Create an Observer that will automatically update
-  // the recycler view when the data changes
-  @SuppressLint("NotifyDataSetChanged")
-  private val companyListObserver = Observer<List<Company>> {
-      companies.clear()
-      companies.addAll(it)
-      adapter.notifyDataSetChanged()
-  }
-
-  ...
-
-}
 ```
-Now that the observer will update the adapter, it just needs to subscribe to the live data state changes. It will also need to be unsubscribed when the fragment is stopped. Therefore, the fragment's `onResume` and `onStop` functions will be used for the subscribing and unsubscribing, respectively.
+
+Using callbacks, when the `star` icon is clicked, the click event can be propagated from the `adapter` to the `fragment`. Then, the fragment can invoke the favorite or unfavorite call to the `view model`. In the `StopFragment`'s `onCreateView`, add the following code to favorite or unfavorite a route
 ```kotlin
-override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
-): View {
+ ...
+
+  adapter = StopRecyclerAdapter(stops).apply {
+    onItemClicked = { stop, isFavorite, position ->
+        if(isFavorite) viewModel.favorite(position)
+        else viewModel.removeFavorite(stop, position)
+    }
+  }
+
+ ...
+```
+
+In the `StopRecyclerAdapter`, the callback can be invoked when the `star` icon is clicked. When clicked, the `StopUI` instance, the position in the recycler adapter, and if it should be favorited or unfavorited will be supplied to the callback
+```kotlin
+typealias OnItemClicked = (StopUi, Boolean, Int) -> Unit
+
+class StopRecyclerAdapter(private val stops: List<StopUi>): RecyclerView.Adapter<StopRecyclerAdapter.ViewHolder>() {
 
   ...
 
-  override fun onResume() {
-    super.onResume()
-    // When fragment resumes, start observer
-    viewModel.companies.observe(this, companyListObserver)
+  var onItemClicked: OnItemClicked? = null
+
+  // Binds the `Company` data to the elements in the RecyclerView Items
+  inner class ViewHolder(private val binding: RecyclerViewItemBinding): RecyclerView.ViewHolder(binding.root) {
+    fun bind(stop: StopUi, position: Int) {
+        binding.name.text = stop.stopName
+        binding.favoriteImageView.visibility = View.VISIBLE
+        binding.favoriteImageView.setImageResource(R.drawable.ic_baseline_star_outline_24)
+        if(stop.favorite) binding.favoriteImageView.setImageResource(R.drawable.ic_baseline_star_24)
+
+        binding.favoriteImageView.setOnClickListener { onItemClicked?.invoke(stop, !stop.favorite, position) }
+    }
   }
 
-  override fun onStop() {
-    super.onStop()
-    // When fragment stops, remove the live data observer
-    viewModel.companies.removeObserver(companyListObserver)
-  }
+  ...
 
 }
+
 ```
-> Note: The code examples describe the changes made to the `companies` feature to support the `lifecycle` jetpack, however, these changes were also made to the `routes` and `stops` features.
