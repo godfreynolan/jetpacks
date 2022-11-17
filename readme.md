@@ -1,8 +1,8 @@
 # Hilt
 ## Setup
-To add `hilt` to the project, a few dependencies and settings must be added to the `app` level `build.gradle` and `project` level `build.gradle`
+To add `hilt` to the project, a few dependencies and settings were added to the `app` level `build.gradle` and the `project` level `build.gradle`
 
-In the `app` level `build.gradle` the following code was added
+In the `app` level `build.gradle`, the following code was added
 ```gradle
 plugins {
   ...
@@ -30,7 +30,7 @@ dependencies {
 }
 ```
 
-Next, in the `project` level `build.gradle`, add the following plugin
+Next, in the `project` level `build.gradle`, the following plugin was added
 ```gradle
 plugins {
   ...
@@ -40,14 +40,14 @@ plugins {
 ```
 
 ## Application
-For `hilt` to function, the `appplication` class must be overridden to identify the app as able to use `hilt`. A file called `MainApplication` was created and the annotation `HiltAndroidApp` was added to the class.
+For `hilt` to function, the `appplication` class must be overridden and annotated to be `hilt` compatable. A file called `MainApplication` was created and the annotation `HiltAndroidApp` was added to the class.
 ```kotlin
 // Define this application as a `HiltAndroidApplication`
 @HiltAndroidApp
 class MainApplication: Application() {}
 ```
 
-Next, the `AndroidManifest.xml` must be updated to point to the new application file.
+Next, the `AndroidManifest.xml` was updated to point to the new application file.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -64,7 +64,7 @@ Next, the `AndroidManifest.xml` must be updated to point to the new application 
 ```
 
 ## Interfaces
-To dependency inject a class, an `interface` describing all the methods to inject must be created. Therefore, the `EncryptedSharedPrefsHelper` and `SqliteHelper` had interfaces created for them. I will only describe the `SqliteHelper`.
+To dependency inject a class, an `interface` describing all the methods to inject must be created. Therefore, the `EncryptedSharedPrefsHelper` and `SqliteHelper` had interfaces created for them. Only `SqliteHelper` will be described in this document.
 
 In the `database` package, a file called `SqliteHelperInterface` was created and the following methods defined
 ```kotlin
@@ -124,7 +124,7 @@ class StopsViewModel @Inject constructor(
 > Note: The previous instantiations of `helper` and `encryptedSharedPrefs` were removed.
 
 ## Entry Points
-For `hilt` to successfully inject these classes, any activity or fragment that interacts with the view models. Therefore, `MainActivity` and subsequent fragments were annotated with `AndroidEntryPoint`
+For `hilt` to successfully inject these classes, any activity or fragment that interacts with the view models must be annotated. Therefore, `MainActivity` and subsequent fragments were annotated with `AndroidEntryPoint`
 ```kotlin
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
