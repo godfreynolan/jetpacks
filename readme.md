@@ -9,9 +9,9 @@ To add `navigation` to this project, the following dependencies were added to th
 ```
 
 ## NavGraph
-To use navigation in fragments, they must first be defined in a NavGraph. This will also contain the different actions that each fragment can perfom. For example, the `CompaniesFragment` will have a defined action for displaying the `StopsFragment`
+To use navigation in fragments, they must first be defined in a `NavGraph`. This also contains the different actions that each fragment can perfom. For example, the `CompaniesFragment` will have a defined action for displaying the `StopsFragment`
 
-In the `res` folder, and new folder called `navigation` was created. In this folder, the file `nav_graph.xml` was created.
+In the `res` folder, a new folder called `navigation` was created. In this folder, the file `nav_graph.xml` was created.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
@@ -103,7 +103,7 @@ Now that the `NavGraph` has been created, `MainActivity` needs to use it. In the
   ...
 ```
 
-In `MainActivity`'s `onCreate` function, the navigation controller is setup
+In `MainActivity`'s `onCreate` function, the navigation controller was setup
 ```kotlin
 override fun onCreate(savedInstanceState: Bundle?) {
   
@@ -115,7 +115,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-In addition, the `onSupportNavigate` was overridden to use the new navigation controller
+In addition, the `onSupportNavigateUp` was overridden to use the new navigation controller
 ```kotlin
 override fun onSupportNavigateUp(): Boolean {
     val navController = findNavController(R.id.nav_host_fragment_container)
@@ -125,7 +125,7 @@ override fun onSupportNavigateUp(): Boolean {
 ```
 
 ## Fragments
-In the `CompaniesFragment` and the `RoutesFragment`, the `supportFragmentManager` transactions can be replaced. In the `CompaniesFragment`, the following code replaced the original `supportFragmentManager` transaction
+In the `CompaniesFragment` and the `RoutesFragment`, the `supportFragmentManager` transactions were replaced.
 ```kotlin
 findNavController()
   .navigate(
@@ -133,3 +133,4 @@ findNavController()
     bundleOf("companyId" to it.id, "companyName" to it.name)
   )
 ```
+> Note: The process above is the same for the `RoutesFragment`
