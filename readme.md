@@ -1,7 +1,7 @@
 # Security
 ## Setup
-Jetpack Security was added to this project to illustrate how data can be stored securely to `SharedPreferences` through the use of the `EcnryptedSharedPreferences` class. To add it to the project, the following dependency needs to be added to the `app` level `build.gradle`
-> Note: `GSON` was also added to allow us to convert objects directly to strings that can be saved to `EncryptedSharedPreferences`
+Jetpack Security was added to this project to illustrate how data can be stored securely to `SharedPreferences` through the use of the `EcnryptedSharedPreferences` class. To add it to the project, the following dependency was added to the `app` level `build.gradle`
+> Note: `GSON` was also added to allow objects to be directly converted to strings that can be saved to `EncryptedSharedPreferences`
 ```gradle
 // Security
 implementation "androidx.security:security-crypto:1.0.0"
@@ -10,7 +10,7 @@ implementation 'com.google.code.gson:gson:2.10'
 ```
 
 ## Encrypted Shared Preferences
-A new class called `EncryptedSharedPrefsHelper.kt` was created and placed in a new package called `Security`
+A new class called `EncryptedSharedPrefsHelper.kt` was created and placed in a new package called `security`
 ```kotlin
 class EncryptedSharedPrefsHelper(private val context: Context) {
 
@@ -18,7 +18,7 @@ class EncryptedSharedPrefsHelper(private val context: Context) {
 ```
 > Context will need to be passed to this class to initialize an instance of `EncryptedSharedPreferences`
 
-`EncryptedSharedPreferences` will be instantiated as a class-level variable.
+`EncryptedSharedPreferences` will be instantiated as the class-level variable `sharedPrefs`
 ```kotlin
 class EncryptedSharedPrefsHelper(private val context: Context) {
 
@@ -38,7 +38,7 @@ class EncryptedSharedPrefsHelper(private val context: Context) {
 }
 ```
 
-Next, helper functions will be used to convert `class instances > JSON > strings` so that information in classes can be stored directly into shared preferences. Then, a another function will be responsible for converting the data from `string > JSON > class instance`
+Next, helper functions will be used to convert `class instances -> JSON -> strings` so that information in classes can be stored directly into shared preferences. Then, a another function will be responsible for converting the data from `string -> JSON -> class instance`
 ```kotlin
 class EncryptedSharedPrefsHelper(private val context: Context) {
 
@@ -73,7 +73,7 @@ class EncryptedSharedPrefsHelper(private val context: Context) {
 ## View Model
 Now, an instance of the `EncryptedSharedPrefsHelper` can be instantiated by the `ViewModel` and used to store information securely. In this project, it will be used to store a user's favorite routes.
 
-In the `StopsViewModel`, the encrypted shared preferences was instantiated and two functions were created to retrieve, favorite, and unfavorite routes
+In the `StopsViewModel`, the encrypted shared preferences was instantiated and functions were created to retrieve, favorite, and unfavorite routes
 ```kotlin
 class StopsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -118,7 +118,7 @@ class StopsViewModel(application: Application) : AndroidViewModel(application) {
 ```
 
 ## Fragment / Recycler Adapter
-In the `StopsFragment`, the favorite function / unfavorite functions can be called when the favorite button is clicked on a stop. In the `recycler_view_item.xml`, a `star` icon was added.
+In the `StopsFragment`, the favorite / unfavorite functions can be called when the favorite button is clicked on a stop. In the `recycler_view_item.xml`, a `star` icon was added.
 ```xml
   ...
 
@@ -160,7 +160,7 @@ In the `StopsFragment`, the favorite function / unfavorite functions can be call
 
 ```
 
-Using callbacks, when the `star` icon is clicked, the click event can be propagated from the `adapter` to the `fragment`. Then, the fragment can invoke the favorite or unfavorite call to the `view model`. In the `StopFragment`'s `onCreateView`, add the following code to favorite or unfavorite a route
+Using callbacks, when the `star` icon is clicked, the click event can be propagated from the `adapter` to the `fragment`. Then, the fragment can invoke the favorite or unfavorite call to the `view model`. In the `StopFragment`'s `onCreateView`, the following code was added
 ```kotlin
  ...
 
