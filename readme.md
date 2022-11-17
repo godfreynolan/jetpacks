@@ -1,4 +1,14 @@
 # Hilt
+1. [main](https://github.com/godfreynolan/jetpacks)
+2. [jetpack/view-binding](https://github.com/godfreynolan/jetpacks/tree/jetpack/view-binding)
+3. [jetpack/card-view](https://github.com/godfreynolan/jetpacks/tree/jetpack/card-view)
+4. [jetpack/lifecycle](https://github.com/godfreynolan/jetpacks/tree/jetpack/lifecycle)
+5. [jetpack/security](https://github.com/godfreynolan/jetpacks/tree/jetpack/security)
+6. [jetpack/benchmark](https://github.com/godfreynolan/jetpacks/tree/jetpack/benchmark)
+7. [jetpack/navigation](https://github.com/godfreynolan/jetpacks/tree/jetpack/navigation)
+8. **jetpack/hilt**
+9. [jetpack/room](https://github.com/godfreynolan/jetpacks/tree/jetpack/room)
+10. [jetpack/compose](https://github.com/godfreynolan/jetpacks/tree/jetpack/compose)
 ## Setup
 To add `hilt` to the project, a few dependencies and settings were added to the `app` level `build.gradle` and the `project` level `build.gradle`
 
