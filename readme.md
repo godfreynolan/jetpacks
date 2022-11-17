@@ -1,4 +1,14 @@
 # Benchmark
+1. [main](https://github.com/godfreynolan/jetpacks)
+2. [jetpack/view-binding](https://github.com/godfreynolan/jetpacks/tree/jetpack/view-binding)
+3. [jetpack/card-view](https://github.com/godfreynolan/jetpacks/tree/jetpack/card-view)
+4. [jetpack/lifecycle](https://github.com/godfreynolan/jetpacks/tree/jetpack/lifecycle)
+5. [jetpack/security](https://github.com/godfreynolan/jetpacks/tree/jetpack/security)
+6. **jetpack/benchmark**
+7. [jetpack/navigation](https://github.com/godfreynolan/jetpacks/tree/jetpack/navigation)
+8. [jetpack/hilt](https://github.com/godfreynolan/jetpacks/tree/jetpack/hilt)
+9. [jetpack/room](https://github.com/godfreynolan/jetpacks/tree/jetpack/room)
+10. [jetpack/compose](https://github.com/godfreynolan/jetpacks/tree/jetpack/compose)
 ## Setup
 To setup the `Benchmark` jetpack, this [guide](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview) from the Android developer documentation was followed. This will create a new module in the project to contain `macro` and/or `micro` benchmark tests.
 
