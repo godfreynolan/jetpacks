@@ -2,7 +2,7 @@
 ## Setup
 To setup the `Benchmark` jetpack, this [guide](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview) from the Android developer documentation was followed. This will create a new module in the project to contain `macro` and/or `micro` benchmark tests.
 
-In addition, the following line will need to be added to the `project` level `build.gradle
+In addition, the following line was added to the `project` level `build.gradle`
 ```gradle
 plugins {
 
@@ -46,7 +46,7 @@ fun startup() = benchmarkRule.measureRepeated(
 ```
 > Note: To run the test, the `Build Variant` of the application must be switched from `debug` to `benchmark`
 
-Next, the test to load each fragment (companies, routes, and stops was created). It will run 4 iterations. In each iteration, a different route will be loaded. In addition, after each iteration, the `back` button will be pressed twice to return the phone back to the `companies` fragment. This prepares the device for the next iteration.
+Next, to benchmark the load times, the test `loadRoutes` was created. It will run 4 iterations. In each iteration, a different route will be loaded. In addition, after each iteration, the `back` button will be pressed twice to return the phone back to the `companies` fragment. This prepares the device for the next iteration.
 ```kotlin
 ...
 
