@@ -1,4 +1,14 @@
 # Security
+1. [main](https://github.com/godfreynolan/jetpacks)
+2. [jetpack/view-binding](https://github.com/godfreynolan/jetpacks/tree/jetpack/view-binding)
+3. [jetpack/card-view](https://github.com/godfreynolan/jetpacks/tree/jetpack/card-view)
+4. [jetpack/lifecycle](https://github.com/godfreynolan/jetpacks/tree/jetpack/lifecycle)
+5. **jetpack/security**
+6. [jetpack/benchmark](https://github.com/godfreynolan/jetpacks/tree/jetpack/benchmark)
+7. [jetpack/navigation](https://github.com/godfreynolan/jetpacks/tree/jetpack/navigation)
+8. [jetpack/hilt](https://github.com/godfreynolan/jetpacks/tree/jetpack/hilt)
+9. [jetpack/room](https://github.com/godfreynolan/jetpacks/tree/jetpack/room)
+10. [jetpack/compose](https://github.com/godfreynolan/jetpacks/tree/jetpack/compose)
 ## Setup
 Jetpack Security was added to this project to illustrate how data can be stored securely to `SharedPreferences` through the use of the `EcnryptedSharedPreferences` class. To add it to the project, the following dependency was added to the `app` level `build.gradle`
 > Note: `GSON` was also added to allow objects to be directly converted to strings that can be saved to `EncryptedSharedPreferences`
