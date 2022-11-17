@@ -4,7 +4,7 @@
 Due to GitHub file size restrictions, the database file can be downloaded [here](https://www.dropbox.com/s/b02swb1dhx58zrr/gtfs_room.db?dl=0). Please place this file (with the same name) in the `Assets` folder.
 ## Branches
 Each branch builds successively on the previous branches. For example, `jetpack/lifecycle` contains the code of the following branches: `main`, `jetpack/view-binding`, and `jetpack/card-view`.
-1. main - Main branch without any `Jetpack` libraries
+1. **main** - Main branch without any `Jetpack` libraries
 2. [jetpack/view-binding](https://github.com/godfreynolan/jetpacks/tree/jetpack/view-binding) - https://developer.android.com/topic/libraries/view-binding
 3. [jetpack/card-view](https://github.com/godfreynolan/jetpacks/tree/jetpack/card-view) - https://developer.android.com/jetpack/androidx/releases/cardview
 4. [jetpack/lifecycle](https://github.com/godfreynolan/jetpacks/tree/jetpack/lifecycle) - https://developer.android.com/jetpack/androidx/releases/lifecycle
