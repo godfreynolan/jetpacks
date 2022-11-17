@@ -1,7 +1,7 @@
 # View Binding
 
 ## Setup
-To add `View Binding` to a project, the build feature needs to be added to the `app` level `build.gradle`. Then the project needs to be `synced`.
+To add `View Binding` to a project, the `viewBindin` build feature was added to the `app` level `build.gradle`
 ```gradle
 android {
   ...
@@ -38,7 +38,7 @@ Adding `View Binding` to fragments is very similar to activities. Following [And
 private var _binding: FragmentCompanyBinding? = null
 private val binding get() = _binding!!
 ```
-where `_binding` is of the binding type of `FragmentCompanyBinding`or the equivalent name for a different xml file. In this case, `fragment_company.xml` is being bound.
+where `_binding` is of type `FragmentCompanyBinding`or the equivalent name for a different xml file. In this case, `fragment_company.xml` is being bound.
 
 In the fragment's `onCreateView`, `_binding` will be inflated similar to that of the activity. Then, `binding` will be used to access the elements contained in the layout.
 ```kotlin
@@ -62,7 +62,7 @@ override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 }
 ```
 
-Next, the `ViewHolder` is updated to accept the binding. Now the binding can be used like the activities and fragments
+Next, the `ViewHolder` is updated to accept the binding. Now the binding can be used to access individual ui elements
 ```kotlin
 inner class ViewHolder(private val binding: RecyclerViewItemBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(company: Company) {
